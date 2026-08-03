@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hush Hush — Rooftop, bar & club sur les toits de Toulouse</title>
+<meta name="description" content="Hush Hush : rooftop éphémère sur le toit de la Médiathèque José Cabanis à Toulouse. Cuisine méditerranéenne, cocktails servis dans des fruits, DJ sets house organique et afrohouse, vue dégagée sur la ville.">
+<meta name="theme-color" content="#1B0A09">
+<!-- Démo privée : pas d'indexation, le lien reste introuvable sur Google.
+     À retirer le jour de la mise en ligne réelle. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hush Hush — Rooftop, bar & club · Toulouse">
+<meta property="og:description" content="Un rooftop éphémère sur les toits de Toulouse. Cuisine méditerranéenne, cocktails, DJ sets, vue dégagée.">
+<meta property="og:image" content="assets/brand-gradient.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BarOrPub",
+  "name": "Hush Hush",
+  "description": "Rooftop éphémère, bar-restaurant-club sur le toit de la Médiathèque José Cabanis à Toulouse.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "1 allée Jacques Chaban-Delmas",
+    "addressLocality": "Toulouse",
+    "postalCode": "31500",
+    "addressCountry": "FR"
+  },
+  "servesCuisine": "Méditerranéenne",
+  "sameAs": ["https://www.instagram.com/hush_hush_toulouse/"]
+}
+</script>
+</head>
+<body>
+
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="#top" aria-label="Hush Hush — accueil">
+      <img src="assets/mark-cream.png" alt="" width="46" height="35">
+      <span>Hush Hush</span>
+    </a>
+
+    <nav class="nav__links" id="menu" aria-label="Navigation principale">
+      <a href="#soiree">Ce soir</a>
+      <a href="#lieu">Le lieu</a>
+      <a href="#carte">La carte</a>
+      <a href="#musique">Musique</a>
+      <a href="#infos">Infos</a>
+      <a class="btn btn--sm" href="#reserver">Réserver</a>
+    </nav>
+
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="menu" aria-label="Ouvrir le menu">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="contenu">
+
+  <!-- ────────── HERO ────────── -->
+  <section class="hero" id="top">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="hero__inner">
+      <p class="eyebrow reveal">Toulouse · Été 2026</p>
+
+      <!-- monogramme : une lumière le traverse lentement. Le texte ne bouge pas. -->
+      <div class="mark" id="mark" role="img" aria-label="Hush Hush">
+        <span class="mark__fill"></span>
+        <span class="mark__shine"></span>
+      </div>
+
+      <img class="hero__wordmark" src="assets/wordmark-cream.png" alt="" width="900" height="142">
+
+      <p class="hero__tag reveal">
+        Un rooftop <em>éphémère</em> sur les toits de la ville.<br>
+        Cuisine méditerranéenne, cocktails servis dans des fruits, DJ sets jusqu'au bout de la nuit.
+      </p>
+      <div class="hero__cta reveal">
+        <a class="btn" href="#reserver">Réserver une table</a>
+        <a class="btn btn--ghost" href="#soiree">La prochaine soirée</a>
+      </div>
+      <p class="hero__where reveal">
+        <span>Sur le toit de la Médiathèque José Cabanis</span>
+        <span class="dot" aria-hidden="true">·</span>
+        <span>Vendredi → dimanche, jusqu'à fin septembre</span>
+      </p>
+    </div>
+    <a class="hero__scroll" href="#soiree" aria-label="Faire défiler">
+      <span></span>
+    </a>
+  </section>
+
+  <!-- ────────── MARQUEE ────────── -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>House organique</span><i>✦</i><span>Afrohouse</span><i>✦</i><span>Disco</span><i>✦</i>
+      <span>Soul</span><i>✦</i><span>Funk</span><i>✦</i><span>Coucher de soleil</span><i>✦</i>
+      <span>House organique</span><i>✦</i><span>Afrohouse</span><i>✦</i><span>Disco</span><i>✦</i>
+      <span>Soul</span><i>✦</i><span>Funk</span><i>✦</i><span>Coucher de soleil</span><i>✦</i>
+    </div>
+  </div>
+
+  <!-- ────────── PROGRAMMATION ──────────
+       Ordre chronologique dans le HTML ; le JS remonte la prochaine date
+       en tête et grise celles qui sont passées. Sans JS, tout reste lisible. -->
+  <section class="section soiree" id="soiree">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">La programmation</p>
+        <h2>Les <em>soirées</em></h2>
+      </div>
+
+      <ul class="agenda" id="agenda">
+        <li class="event reveal" data-date="2026-07-31">
+          <figure class="event__poster">
+            <img src="assets/affiche-pascal-kleiman.jpg" alt="Affiche : Pascal Kleiman au Hush Hush, vendredi 31 juillet, 22h à 2h" width="1100" height="1467" loading="lazy">
+          </figure>
+          <div class="event__body">
+            <p class="event__meta"><span class="event__kind">Music</span><span class="event__when"><time datetime="2026-07-31">Ven. 31 juillet</time> · 22<i>h</i> → 02<i>h</i></span></p>
+            <h3>Pascal Kleiman</h3>
+            <p class="event__line">DJ set sur le rooftop</p>
+          </div>
+        </li>
+
+        <li class="event reveal" data-date="2026-08-01">
+          <figure class="event__poster">
+            <img src="assets/affiche-ekiz-fasol.jpg" alt="Affiche : Ekiz &amp; Fasol au Hush Hush, samedi 1er août, 22h à 3h" width="1100" height="1467" loading="lazy">
+          </figure>
+          <div class="event__body">
+            <p class="event__meta"><span class="event__kind">Club</span><span class="event__when"><time datetime="2026-08-01">Sam. 1<sup>er</sup> août</time> · 22<i>h</i> → 03<i>h</i></span></p>
+            <h3>Ekiz <span class="amp">&amp;</span> Fasol</h3>
+            <p class="event__line">DJ set sur la terrasse — guestlist only à partir de 22h</p>
+          </div>
+        </li>
+
+        <li class="event reveal" data-date="2026-08-02">
+          <figure class="event__poster">
+            <img src="assets/affiche-ahla-leila.jpg" alt="Affiche : Ahla Leila avec DJ Eez et darbouka par Rodolphe au Hush Hush, dimanche 2 août, 17h à 23h" width="1100" height="1466" loading="lazy">
+          </figure>
+          <div class="event__body">
+            <p class="event__meta"><span class="event__kind">Club</span><span class="event__when"><time datetime="2026-08-02">Dim. 2 août</time> · 17<i>h</i> → 23<i>h</i></span></p>
+            <h3>Ahla Leila</h3>
+            <p class="event__line">DJ Eez &amp; darbouka par Rodolphe</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="agenda__foot reveal">
+        <p class="note" id="agenda-note">Les prochaines dates sont annoncées en premier sur Instagram.</p>
+        <div class="agenda__cta">
+          <a class="btn" href="#reserver">Demander la guestlist</a>
+          <a class="btn btn--ghost" href="https://www.instagram.com/hush_hush_toulouse/" target="_blank" rel="noopener">Voir sur Instagram ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── LE LIEU ────────── -->
+  <section class="section lieu" id="lieu">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">Le lieu</p>
+        <h2>Le spot le plus <em>inattendu</em> de Toulouse</h2>
+      </div>
+
+      <div class="lieu__grid">
+        <div class="lieu__text reveal">
+          <p class="lead">
+            Hush Hush, c'est un jeu de cache-cache. Plutôt que les adresses déjà courues,
+            le rooftop s'installe là où personne ne l'attend : <strong>sur le toit de la
+            Médiathèque José Cabanis</strong>.
+          </p>
+          <p>
+            320 m² de terrasse ouverte, une vue dégagée sur la ville, et cette lumière
+            de fin de journée qui fait basculer l'endroit du bar de terrasse au club à
+            ciel ouvert. Un lieu pensé et dirigé par <strong>Raphi Khalifa</strong>,
+            producteur et directeur artistique.
+          </p>
+          <p>
+            Éphémère par nature : la saison court tout l'été et s'arrête fin septembre.
+          </p>
+        </div>
+
+        <div class="stats reveal">
+          <div class="stat"><b>320</b><span>m² de terrasse</span></div>
+          <div class="stat"><b>2</b><span>zones sonores</span></div>
+          <div class="stat"><b>3</b><span>soirs par semaine</span></div>
+          <div class="stat"><b>360°</b><span>de vue sur Toulouse</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── LA CARTE ────────── -->
+  <section class="section carte" id="carte">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">La carte</p>
+        <h2>Méditerranéenne, <em>et servie dans un fruit</em></h2>
+      </div>
+
+      <div class="cards">
+        <article class="card reveal">
+          <h3>La cuisine</h3>
+          <p>
+            Une carte méditerranéenne travaillée par <strong>Léopold et Maxime</strong>,
+            du Bistrot August. Des assiettes à partager, une formule qui reste stable
+            tout l'été.
+          </p>
+        </article>
+
+        <article class="card reveal">
+          <h3>Les cocktails</h3>
+          <p>
+            Des classiques revisités et les créations du mixologue maison. La signature :
+            des cocktails servis en <strong>édition limitée dans des fruits évidés</strong> —
+            ananas pour commencer, puis melon, pastèque, coco et mangue.
+          </p>
+        </article>
+
+        <article class="card reveal">
+          <h3>Le brunch</h3>
+          <p>
+            Tous les dimanches de <strong>12h à 15h</strong>, à 34 € par personne.
+            La version douce du rooftop, avant que le soleil ne descende.
+          </p>
+        </article>
+      </div>
+
+      <ul class="fruits reveal" aria-label="Fruits de la saison">
+        <li>Ananas</li><li>Melon</li><li>Pastèque</li><li>Coco</li><li>Mangue</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ────────── MUSIQUE ────────── -->
+  <section class="section musique" id="musique">
+    <div class="musique__bg" aria-hidden="true"></div>
+    <div class="wrap musique__inner">
+      <div class="head reveal">
+        <p class="eyebrow">La programmation</p>
+        <h2>Deux zones, <em>deux tempos</em></h2>
+      </div>
+
+      <div class="zones">
+        <article class="zone reveal">
+          <p class="zone__num">01</p>
+          <h3>Lounge</h3>
+          <p>
+            Le côté terrasse, celui du coucher de soleil. House organique, ethnique,
+            quelques détours soul et disco. On parle encore, on trinque, on regarde
+            la ville s'allumer.
+          </p>
+        </article>
+
+        <article class="zone reveal">
+          <p class="zone__num">02</p>
+          <h3>Club</h3>
+          <p>
+            Passé une certaine heure, le son monte. Afrohouse, house profonde, funk.
+            La terrasse a été pensée pour que le son change selon l'endroit où
+            vous êtes.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── INFOS ────────── -->
+  <section class="section infos" id="infos">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">Infos pratiques</p>
+        <h2>Nous trouver</h2>
+      </div>
+
+      <div class="infos__grid">
+        <dl class="infos__list reveal">
+          <div>
+            <dt>Adresse</dt>
+            <dd>
+              Rooftop de la Médiathèque José Cabanis<br>
+              1 allée Jacques Chaban-Delmas<br>
+              31500 Toulouse
+            </dd>
+          </div>
+          <div>
+            <dt>Horaires</dt>
+            <dd>
+              Vendredi &amp; samedi · 19h → 02h<br>
+              Dimanche · toute la journée, brunch 12h → 15h<br>
+              <em>Saison jusqu'à fin septembre</em>
+            </dd>
+          </div>
+          <div>
+            <dt>Accès</dt>
+            <dd>
+              Métro <b class="metro">A</b> — Marengo&nbsp;SNCF<br>
+              À deux pas de la gare Matabiau
+            </dd>
+          </div>
+          <div>
+            <dt>Contact</dt>
+            <dd>
+              <a href="tel:+33562274088">05 62 27 40 88</a><br>
+              <a href="https://www.instagram.com/hush_hush_toulouse/" target="_blank" rel="noopener">@hush_hush_toulouse ↗</a>
+            </dd>
+          </div>
+        </dl>
+
+        <a class="map reveal" href="https://www.google.com/maps/search/?api=1&query=M%C3%A9diath%C3%A8que+Jos%C3%A9+Cabanis%2C+1+all%C3%A9e+Jacques+Chaban-Delmas%2C+31500+Toulouse" target="_blank" rel="noopener">
+          <div class="map__inner">
+            <img src="assets/mark-cream.png" alt="" width="80" height="62">
+            <p><strong>Médiathèque José Cabanis</strong><br>1 allée Jacques Chaban-Delmas, Toulouse</p>
+            <span class="map__cta">Ouvrir dans Google Maps ↗</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── RÉSERVATION ────────── -->
+  <section class="section reserver" id="reserver">
+    <div class="wrap reserver__inner">
+      <div class="head reveal">
+        <p class="eyebrow">Réservation</p>
+        <h2>Une table, <em>ou la guestlist</em></h2>
+        <p class="lead">
+          Dites-nous quand vous venez et à combien. On revient vers vous par mail.
+          Pour une réponse immédiate, un message sur Instagram fonctionne aussi.
+        </p>
+      </div>
+
+      <form class="form reveal" id="form-reservation" novalidate>
+        <div class="field">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" name="nom" autocomplete="name" required placeholder="Votre nom">
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required placeholder="vous@email.com">
+        </div>
+
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+
+        <div class="field">
+          <label for="personnes">Personnes</label>
+          <select id="personnes" name="personnes">
+            <option>2</option><option>3</option><option>4</option><option>5</option>
+            <option>6</option><option>7</option><option>8</option><option>Plus de 8</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="type">Motif</label>
+          <select id="type" name="type">
+            <option>Table — dîner</option>
+            <option>Brunch du dimanche</option>
+            <option>Guestlist soirée</option>
+            <option>Privatisation / groupe</option>
+          </select>
+        </div>
+
+        <div class="field field--full">
+          <label for="message">Message <span class="opt">(facultatif)</span></label>
+          <textarea id="message" name="message" rows="3" placeholder="Une occasion particulière, une demande…"></textarea>
+        </div>
+
+        <div class="form__actions field--full">
+          <button class="btn" type="submit">Envoyer la demande</button>
+          <a class="btn btn--ghost" href="https://www.instagram.com/hush_hush_toulouse/" target="_blank" rel="noopener">Écrire sur Instagram ↗</a>
+        </div>
+
+        <p class="form__status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <img class="footer__logo" src="assets/logo-cream.png" alt="Hush Hush" width="1200" height="726" loading="lazy">
+    <p class="footer__line">Rooftop éphémère · Médiathèque José Cabanis · Toulouse</p>
+    <nav class="footer__nav" aria-label="Liens de pied de page">
+      <a href="https://www.instagram.com/hush_hush_toulouse/" target="_blank" rel="noopener">Instagram</a>
+      <a href="tel:+33562274088">05 62 27 40 88</a>
+      <a href="#reserver">Réserver</a>
+    </nav>
+    <p class="footer__legal">© 2026 Hush Hush — Tous droits réservés. L'abus d'alcool est dangereux pour la santé, à consommer avec modération.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
