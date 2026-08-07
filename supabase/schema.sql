@@ -61,6 +61,15 @@ alter table public.hush_hush_guestlist enable row level security;
 -- ── Les règles d'accès ────────────────────────────────────────
 -- Le site est statique : il n'a que la clé anon, publique. Toute la
 -- protection tient donc dans ces quatre policies.
+--
+-- Attention si le projet héberge aussi une app à connexion anonyme
+-- (c'était le cas en cohabitation avec Cotéa) : un visiteur anonyme
+-- porte quand même le rôle `authenticated`. Ce qui le bloque ici, ce
+-- n'est donc pas le rôle mais la comparaison d'email — son jeton n'a
+-- pas de claim `email`, la condition vaut NULL, donc faux.
+-- Vérifié en conditions réelles : lecture vide, UPDATE et DELETE sans
+-- effet. L'analyseur Supabase signalera malgré tout ces tables sous
+-- « Anonymous Access Policies » : c'est attendu, pas une faille.
 
 -- 1. N'importe quel visiteur peut déposer une demande…
 drop policy if exists "public insert guestlist request" on public.hush_hush_guestlist;
