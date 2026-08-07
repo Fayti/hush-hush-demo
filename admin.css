@@ -244,6 +244,76 @@
 .tableau .col-soiree { color: var(--texte-doux); font-size: .82rem; }
 .tableau .col-date { color: var(--texte-doux); font-size: .8rem; white-space: nowrap; }
 
+/* ─────────── Pointage à l'entrée ───────────
+   Cible large et case bien visible : ça se coche d'un pouce, dans le
+   noir, sur un téléphone, pendant que la file avance. */
+
+.tableau .col-arrive { width: 4.5rem; text-align: center; }
+
+.pointage {
+  display: inline-grid;
+  place-items: center;
+  padding: .35rem;      /* agrandit la zone cliquable sans grossir la case */
+  cursor: pointer;
+}
+.pointage input {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+}
+.pointage span {
+  display: block;
+  width: 22px; height: 22px;
+  border: 1px solid rgba(248, 232, 212, .35);
+  border-radius: 4px;
+  transition: background .2s var(--ease), border-color .2s var(--ease);
+}
+.pointage span::after {
+  content: "";
+  display: block;
+  width: 5px; height: 10px;
+  margin: 3px auto 0;
+  border: solid var(--noir);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform .2s var(--ease);
+}
+.pointage input:checked + span {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+.pointage input:checked + span::after { transform: rotate(45deg) scale(1); }
+.pointage input:focus-visible + span {
+  outline: 2px solid var(--orange-vif);
+  outline-offset: 2px;
+}
+
+/* une ligne pointée s'efface visuellement : il reste ceux à faire entrer */
+.tableau tr.est-arrive .col-nom,
+.tableau tr.est-arrive .col-contact,
+.tableau tr.est-arrive .col-soiree,
+.tableau tr.est-arrive .col-date { opacity: .45; }
+.tableau tr.est-arrive .col-pers { color: var(--texte-doux); }
+
+/* interrupteur « reste à faire entrer » */
+.bascule {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .95rem;
+  border: 1px solid var(--ligne);
+  border-radius: 100px;
+  font-size: .74rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+  cursor: pointer;
+  transition: border-color .3s var(--ease), color .3s var(--ease);
+}
+.bascule:hover { border-color: rgba(248, 232, 212, .3); }
+.bascule input { accent-color: var(--orange); cursor: pointer; }
+.bascule:has(input:checked) { border-color: var(--orange); color: var(--creme); }
+
 .supprimer {
   border: 0;
   background: none;

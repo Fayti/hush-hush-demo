@@ -2,9 +2,8 @@
 (() => {
   'use strict';
 
-  const SUPABASE_URL = 'https://ileicboyfrmhxhqbywzw.supabase.co';
-  const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsZWljYm95ZnJtaHhocWJ5d3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4NzkxOTMsImV4cCI6MjEwMDQ1NTE5M30.vVtuVPCf3VpnWLYf7LtY4hK1o7EKS31P9mlEWicjYOQ';
+  /* Réglages Supabase : voir config.js, seul fichier à modifier. */
+  const { SUPABASE_URL, SUPABASE_ANON_KEY } = window.HUSH_HUSH || {};
 
   const CLE_SESSION = 'hushhush.session';
 
@@ -15,10 +14,13 @@
   const formConnexion = $('form-connexion');
   const statutConnexion = $('connexion-status');
 
-  let session = null;      // { access_token, refresh_token, email }
+  let session = null;      // { access_token, refresh_token, email, expire_le }
   let demandes = [];       // toutes les demandes chargées
 
-  /* ── Session ── */
+  /* ── Session ──
+     Le jeton Supabase ne vit qu'une heure. On garde le refresh_token
+     pour le renouveler en silence : sans ça, la console se ferait
+     éjecter en pleine soirée.                                        */
 
   const lireSession = () => {
     try { return JSON.parse(localStorage.getItem(CLE_SESSION)); }
@@ -27,15 +29,24 @@
   const ecrireSession = s => localStorage.setItem(CLE_SESSION, JSON.stringify(s));
   const effacerSession = () => localStorage.removeItem(CLE_SESSION);
 
+  const memoriser = (data, emailReplique) => {
+    session = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      email: data.user?.email || emailReplique,
+      // 60 s de marge pour ne jamais présenter un jeton tout juste périmé
+      expire_le: Date.now() + Math.max(0, (data.expires_in || 3600) - 60) * 1000,
+    };
+    ecrireSession(session);
+  };
+
   const afficherConnexion = message => {
     session = null;
     effacerSession();
     vueConsole.hidden = true;
     vueConnexion.hidden = false;
-    if (message) {
-      statutConnexion.classList.add('is-error');
-      statutConnexion.textContent = message;
-    }
+    statutConnexion.classList.toggle('is-error', Boolean(message));
+    statutConnexion.textContent = message || '';
   };
 
   const afficherConsole = () => {
@@ -44,10 +55,34 @@
     $('console-moi').textContent = session.email;
   };
 
-  /* ── Appels API ── */
+  /* Renouvelle le jeton. Renvoie true si on repart avec une session valable. */
+  const renouveler = async () => {
+    if (!session?.refresh_token) return false;
+    try {
+      const reponse = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: session.refresh_token }),
+      });
+      if (!reponse.ok) return false;
+      memoriser(await reponse.json(), session.email);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
-  const api = (chemin, options = {}) =>
-    fetch(`${SUPABASE_URL}${chemin}`, {
+  /* ── Appels API ──
+     Renouvelle avant de partir si le jeton est expiré, et retente une
+     fois si le serveur répond quand même 401.                        */
+
+  const api = async (chemin, options = {}) => {
+    if (session && Date.now() >= session.expire_le && !(await renouveler())) {
+      afficherConnexion('Session expirée, reconnectez-vous.');
+      return null;
+    }
+
+    const envoyer = () => fetch(`${SUPABASE_URL}${chemin}`, {
       ...options,
       headers: {
         apikey: SUPABASE_ANON_KEY,
@@ -56,6 +91,19 @@
         ...options.headers,
       },
     });
+
+    let reponse = await envoyer();
+
+    if (reponse.status === 401) {
+      if (!(await renouveler())) {
+        afficherConnexion('Session expirée, reconnectez-vous.');
+        return null;
+      }
+      reponse = await envoyer();
+    }
+
+    return reponse;
+  };
 
   /* ── Connexion ── */
 
@@ -74,25 +122,17 @@
     statutConnexion.textContent = 'Connexion…';
 
     try {
+      const email = $('email').value.trim();
       const reponse = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
         method: 'POST',
         headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: $('email').value.trim(),
-          password: $('motdepasse').value,
-        }),
+        body: JSON.stringify({ email, password: $('motdepasse').value }),
       });
 
       const data = await reponse.json();
       if (!reponse.ok) throw new Error(enFrancais(data.error_description || data.msg || data.error));
 
-      session = {
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-        email: data.user?.email || $('email').value.trim(),
-      };
-      ecrireSession(session);
-
+      memoriser(data, email);
       formConnexion.reset();
       statutConnexion.textContent = '';
       afficherConsole();
@@ -105,23 +145,20 @@
     }
   });
 
-  $('deconnexion').addEventListener('click', () => {
-    afficherConnexion();
-    statutConnexion.classList.remove('is-error');
-    statutConnexion.textContent = '';
-  });
+  $('deconnexion').addEventListener('click', () => afficherConnexion());
 
   /* ── Chargement des demandes ── */
 
   const charger = async () => {
     const reponse = await api('/rest/v1/hush_hush_guestlist?select=*&order=created_at.desc');
+    if (!reponse) return;                       // session perdue, déjà géré
 
-    if (reponse.status === 401 || reponse.status === 403) {
-      return afficherConnexion('Session expirée, reconnectez-vous.');
+    if (reponse.status === 403) {
+      return afficherConnexion(
+        'Ce compte n’est pas autorisé. Ajoutez son email dans la table hush_hush_admins.'
+      );
     }
-    if (!reponse.ok) {
-      return afficherConnexion('Impossible de charger les demandes.');
-    }
+    if (!reponse.ok) return afficherConnexion('Impossible de charger les demandes.');
 
     demandes = await reponse.json();
     remplirFiltre();
@@ -136,9 +173,10 @@
     const carte = new Map();
     liste.forEach(d => {
       const cle = d.event_label || d.event_slug;
-      const e = carte.get(cle) || { label: cle, inscrits: 0, personnes: 0 };
+      const e = carte.get(cle) || { label: cle, inscrits: 0, personnes: 0, arrivees: 0 };
       e.inscrits += 1;
       e.personnes += d.personnes || 0;
+      if (d.arrive) e.arrivees += d.personnes || 0;
       carte.set(cle, e);
     });
     return [...carte.values()].sort((a, b) => b.personnes - a.personnes);
@@ -147,17 +185,14 @@
   const dessinerStats = () => {
     const total = demandes.length;
     const personnes = demandes.reduce((n, d) => n + (d.personnes || 0), 0);
+    const entrees = demandes.filter(d => d.arrive).reduce((n, d) => n + (d.personnes || 0), 0);
     const soirees = parSoiree(demandes).length;
 
-    const debutSemaine = new Date();
-    debutSemaine.setDate(debutSemaine.getDate() - 7);
-    const recentes = demandes.filter(d => new Date(d.created_at) >= debutSemaine).length;
-
     $('stats').innerHTML = [
-      [total, 'demandes'],
+      [total, total > 1 ? 'demandes' : 'demande'],
       [personnes, 'personnes attendues'],
+      [entrees, 'déjà entrées'],
       [soirees, soirees > 1 ? 'soirées concernées' : 'soirée concernée'],
-      [recentes, 'sur 7 jours'],
     ].map(([n, libelle]) =>
       `<div class="stat"><b>${n}</b><span>${libelle}</span></div>`
     ).join('');
@@ -172,7 +207,9 @@
           <div class="ligne-soiree">
             <span class="ligne-soiree__nom">${echapper(g.label)}</span>
             <span class="ligne-soiree__chiffres">
-              <b>${g.personnes}</b> pers. · ${g.inscrits} demande${g.inscrits > 1 ? 's' : ''}
+              <b>${g.personnes}</b> pers. · ${g.inscrits} demande${g.inscrits > 1 ? 's' : ''}${
+                g.arrivees ? ` · ${g.arrivees} entrée${g.arrivees > 1 ? 's' : ''}` : ''
+              }
             </span>
             <span class="ligne-soiree__barre"><i style="width:${(g.personnes / max) * 100}%"></i></span>
           </div>`).join('')
@@ -182,9 +219,11 @@
   const listeFiltree = () => {
     const soiree = $('filtre-soiree').value;
     const q = $('recherche').value.trim().toLowerCase();
+    const restants = $('filtre-restants').checked;
 
     return demandes.filter(d => {
       if (soiree && d.event_slug !== soiree) return false;
+      if (restants && d.arrive) return false;
       if (q && !(`${d.nom} ${d.contact}`.toLowerCase().includes(q))) return false;
       return true;
     });
@@ -195,7 +234,14 @@
     $('vide').hidden = liste.length > 0;
 
     $('tableau-corps').innerHTML = liste.map(d => `
-      <tr data-id="${d.id}">
+      <tr data-id="${d.id}" class="${d.arrive ? 'est-arrive' : ''}">
+        <td class="col-arrive">
+          <label class="pointage">
+            <input type="checkbox" data-arrive="${d.id}" ${d.arrive ? 'checked' : ''}
+                   aria-label="Marquer ${echapper(d.nom)} comme arrivé">
+            <span aria-hidden="true"></span>
+          </label>
+        </td>
         <td class="col-nom">${echapper(d.nom)}</td>
         <td class="col-contact">${lienContact(d.contact)}</td>
         <td class="col-pers">${d.personnes}</td>
@@ -226,6 +272,42 @@
 
   $('filtre-soiree').addEventListener('change', dessinerTableau);
   $('recherche').addEventListener('input', dessinerTableau);
+  $('filtre-restants').addEventListener('change', dessinerTableau);
+
+  /* ── Pointage à l'entrée ──
+     On coche tout de suite à l'écran, on écrit ensuite : à la porte,
+     l'affichage doit répondre au doigt, pas au réseau. En cas d'échec
+     on revient en arrière et on le dit.                              */
+
+  $('tableau-corps').addEventListener('change', async e => {
+    const case_ = e.target.closest('[data-arrive]');
+    if (!case_) return;
+
+    const id = case_.dataset.arrive;
+    const demande = demandes.find(d => d.id === id);
+    if (!demande) return;
+
+    const avant = demande.arrive;
+    demande.arrive = case_.checked;
+    case_.closest('tr')?.classList.toggle('est-arrive', case_.checked);
+    dessinerStats();
+    dessinerParSoiree();
+
+    const reponse = await api(`/rest/v1/hush_hush_guestlist?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify({ arrive: demande.arrive }),
+    });
+
+    if (!reponse || !reponse.ok) {
+      demande.arrive = avant;
+      case_.checked = avant;
+      case_.closest('tr')?.classList.toggle('est-arrive', avant);
+      dessinerStats();
+      dessinerParSoiree();
+      alert('Le pointage n’a pas été enregistré. Vérifiez la connexion.');
+    }
+  });
 
   /* ── Suppression ── */
 
@@ -240,7 +322,7 @@
     bouton.disabled = true;
     const reponse = await api(`/rest/v1/hush_hush_guestlist?id=eq.${id}`, { method: 'DELETE' });
 
-    if (reponse.ok) {
+    if (reponse && reponse.ok) {
       demandes = demandes.filter(d => d.id !== id);
       dessiner();
     } else {
@@ -257,10 +339,12 @@
 
     const cellule = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const lignes = [
-      ['Nom', 'Contact', 'Personnes', 'Soirée', 'Message', 'Reçue le'],
+      ['Nom', 'Contact', 'Personnes', 'Soirée', 'Entré', 'Message', 'Reçue le'],
       ...liste.map(d => [
         d.nom, d.contact, d.personnes,
-        d.event_label || d.event_slug, d.message || '',
+        d.event_label || d.event_slug,
+        d.arrive ? 'oui' : 'non',
+        d.message || '',
         new Date(d.created_at).toLocaleString('fr-FR'),
       ]),
     ].map(l => l.map(cellule).join(';')).join('\n');
@@ -277,11 +361,20 @@
 
   /* ── Utilitaires ── */
 
-  // Supabase renvoie ses erreurs en anglais
+  // Supabase renvoie ses erreurs en anglais.
+  // Piège classique : le compte supabase.com du gérant n'est PAS un
+  // utilisateur du projet. Tant qu'on ne l'a pas créé dans
+  // Authentication → Users, la connexion échouera toujours ici.
   function enFrancais(message) {
     const m = String(message || '');
-    if (/invalid login credentials/i.test(m)) return 'Email ou mot de passe incorrect.';
-    if (/email not confirmed/i.test(m)) return 'Cet email n’a pas encore été confirmé.';
+    if (/invalid login credentials/i.test(m)) {
+      return 'Identifiants refusés. Attention : votre compte supabase.com ne ' +
+             'marche pas ici — il faut créer l’utilisateur dans le projet, ' +
+             'via Authentication → Users → Add user.';
+    }
+    if (/email not confirmed/i.test(m)) {
+      return 'Cet email n’est pas confirmé. Recréez l’utilisateur en cochant « Auto Confirm User ».';
+    }
     if (/rate limit|too many/i.test(m)) return 'Trop de tentatives, réessayez dans un instant.';
     return m || 'Connexion impossible.';
   }
@@ -292,11 +385,11 @@
   }
 
   function lienContact(contact) {
-    const sûr = echapper(contact);
+    const sur = echapper(contact);
     const compact = String(contact).replace(/\s/g, '');
-    if (compact.includes('@')) return `<a href="mailto:${sûr}">${sûr}</a>`;
-    if (/^[+0-9]{6,}$/.test(compact)) return `<a href="tel:${compact}">${sûr}</a>`;
-    return sûr;
+    if (compact.includes('@')) return `<a href="mailto:${sur}">${sur}</a>`;
+    if (/^[+0-9]{6,}$/.test(compact)) return `<a href="tel:${compact}">${sur}</a>`;
+    return sur;
   }
 
   function dateCourte(iso) {
@@ -308,8 +401,17 @@
   /* ── Démarrage : on reprend la session si elle est encore valable ── */
 
   (async () => {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      return afficherConnexion('config.js est introuvable ou incomplet.');
+    }
+
     session = lireSession();
     if (!session?.access_token) return afficherConnexion();
+
+    // session restaurée d'une visite précédente : elle peut être périmée
+    if (Date.now() >= (session.expire_le || 0) && !(await renouveler())) {
+      return afficherConnexion();
+    }
 
     afficherConsole();
     await charger();

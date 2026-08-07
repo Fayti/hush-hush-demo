@@ -3,13 +3,11 @@
   'use strict';
 
   /* ── Où vont les demandes de guestlist ──
-     Écriture directe dans Supabase, table dédiée à ce site (aucun rapport
-     avec les autres projets Antoine). Lecture publique désactivée côté
-     base (RLS insert-only) : seule l'équipe Hush Hush consulte les
-     demandes, via le Table Editor du dashboard Supabase.             */
-  const SUPABASE_URL = 'https://ileicboyfrmhxhqbywzw.supabase.co';
-  const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsZWljYm95ZnJtaHhocWJ5d3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4NzkxOTMsImV4cCI6MjEwMDQ1NTE5M30.vVtuVPCf3VpnWLYf7LtY4hK1o7EKS31P9mlEWicjYOQ';
+     Réglages dans config.js — un seul endroit à changer si le projet
+     Supabase change. Les demandes partent dans une table dédiée dont
+     la lecture publique est fermée (RLS) : seule l'équipe Hush Hush
+     les consulte, depuis admin.html.                                 */
+  const { SUPABASE_URL, SUPABASE_ANON_KEY } = window.HUSH_HUSH || {};
 
   /* ── Barre de navigation : fond au scroll ── */
   const nav = document.getElementById('nav');

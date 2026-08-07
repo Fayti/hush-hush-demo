@@ -79,6 +79,10 @@
             <select id="filtre-soiree"><option value="">Toutes les soirées</option></select>
           </label>
           <input class="recherche" type="search" id="recherche" placeholder="Chercher un nom…" aria-label="Chercher un nom">
+          <label class="bascule">
+            <input type="checkbox" id="filtre-restants">
+            <span>Reste à faire entrer</span>
+          </label>
           <button class="btn btn--ghost btn--sm" type="button" id="export">Export CSV</button>
         </div>
       </div>
@@ -87,6 +91,7 @@
         <table class="tableau" id="tableau">
           <thead>
             <tr>
+              <th scope="col" class="col-arrive">Entrée</th>
               <th scope="col">Nom</th>
               <th scope="col">Contact</th>
               <th scope="col">Pers.</th>
@@ -105,6 +110,7 @@
   </main>
 </div>
 
+<script src="config.js"></script>
 <script src="admin.js"></script>
 </body>
 </html>
