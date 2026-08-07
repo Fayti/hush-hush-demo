@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hush Hush — Console guestlist</title>
+<!-- page de gestion : jamais indexée, jamais partagée -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#150705">
+<link rel="icon" href="assets/favicon.png" type="image/png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin">
+
+<!-- ────────── CONNEXION ────────── -->
+<section class="connexion" id="connexion" hidden>
+  <form class="connexion__box" id="form-connexion" novalidate>
+    <img class="connexion__logo" src="assets/mark-cream.png" alt="" width="90" height="69">
+    <p class="connexion__label">Console guestlist</p>
+    <h1 class="connexion__titre">Hush&nbsp;Hush</h1>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="email" required placeholder="vous@exemple.com">
+    </div>
+
+    <div class="field">
+      <label for="motdepasse">Mot de passe</label>
+      <input type="password" id="motdepasse" name="motdepasse" autocomplete="current-password" required placeholder="••••••••">
+    </div>
+
+    <button class="btn connexion__btn" type="submit">Se connecter</button>
+    <p class="form__status" id="connexion-status" role="status" aria-live="polite"></p>
+  </form>
+</section>
+
+<!-- ────────── CONSOLE ────────── -->
+<div class="console" id="console" hidden>
+
+  <header class="console__nav">
+    <div class="console__nav-inner">
+      <div class="console__brand">
+        <img src="assets/mark-cream.png" alt="" width="40" height="31">
+        <span>Console guestlist</span>
+      </div>
+      <div class="console__actions">
+        <span class="console__moi" id="console-moi"></span>
+        <button class="btn btn--ghost btn--sm" type="button" id="rafraichir">Rafraîchir</button>
+        <button class="btn btn--ghost btn--sm" type="button" id="deconnexion">Quitter</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="console__corps">
+
+    <!-- chiffres du haut -->
+    <section class="stats" id="stats" aria-label="Chiffres clés"></section>
+
+    <!-- répartition par soirée -->
+    <section class="bloc">
+      <div class="bloc__tete">
+        <h2>Par soirée</h2>
+      </div>
+      <div class="parsoiree" id="parsoiree"></div>
+    </section>
+
+    <!-- liste détaillée -->
+    <section class="bloc">
+      <div class="bloc__tete">
+        <h2>Les inscrits</h2>
+        <div class="bloc__outils">
+          <label class="filtre">
+            <span class="sr-only">Filtrer par soirée</span>
+            <select id="filtre-soiree"><option value="">Toutes les soirées</option></select>
+          </label>
+          <input class="recherche" type="search" id="recherche" placeholder="Chercher un nom…" aria-label="Chercher un nom">
+          <button class="btn btn--ghost btn--sm" type="button" id="export">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="tableau-enveloppe">
+        <table class="tableau" id="tableau">
+          <thead>
+            <tr>
+              <th scope="col">Nom</th>
+              <th scope="col">Contact</th>
+              <th scope="col">Pers.</th>
+              <th scope="col">Soirée</th>
+              <th scope="col">Reçue le</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody id="tableau-corps"></tbody>
+        </table>
+      </div>
+
+      <p class="vide" id="vide" hidden>Aucune demande pour l'instant.</p>
+    </section>
+
+  </main>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

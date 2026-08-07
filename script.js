@@ -2,9 +2,14 @@
 (() => {
   'use strict';
 
-  /* ── Adresse qui reçoit les demandes de réservation ──
-     Remplacer par la vraie adresse mail du lieu.            */
-  const EMAIL_RESERVATION = 'contact@hushhush-toulouse.fr';
+  /* ── Où vont les demandes de guestlist ──
+     Écriture directe dans Supabase, table dédiée à ce site (aucun rapport
+     avec les autres projets Antoine). Lecture publique désactivée côté
+     base (RLS insert-only) : seule l'équipe Hush Hush consulte les
+     demandes, via le Table Editor du dashboard Supabase.             */
+  const SUPABASE_URL = 'https://ileicboyfrmhxhqbywzw.supabase.co';
+  const SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsZWljYm95ZnJtaHhocWJ5d3p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4NzkxOTMsImV4cCI6MjEwMDQ1NTE5M30.vVtuVPCf3VpnWLYf7LtY4hK1o7EKS31P9mlEWicjYOQ';
 
   /* ── Barre de navigation : fond au scroll ── */
   const nav = document.getElementById('nav');
@@ -42,11 +47,10 @@
     if (e.key === 'Escape') closeMenu();
   });
 
-
   /* ── Programmation ──
      Chaque <li> porte sa date en data-date. On grise ce qui est passé et on
      remonte la prochaine soirée en tête. Pour ajouter une date : copier un
-     bloc .event dans index.html, il n'y a rien à toucher ici.          */
+     bloc .event dans index.html, il n'y a rien à toucher ici.         */
   const agenda = document.getElementById('agenda');
   const noteAgenda = document.getElementById('agenda-note');
 
@@ -103,58 +107,101 @@
     items.forEach(el => el.classList.add('is-in'));
   }
 
-  /* ── Date minimale du formulaire : aujourd'hui ── */
-  const dateInput = document.getElementById('date');
-  if (dateInput) {
-    const today = new Date();
-    const iso = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-      .toISOString().slice(0, 10);
-    dateInput.min = iso;
+  /* ── Fenêtre d'inscription ──
+     Ouverte depuis le bouton d'une carte : on y recopie le titre et la date
+     de la soirée, et on retient son slug pour l'envoi. La personne n'a donc
+     que deux champs à remplir.                                          */
+  const modale = document.getElementById('modale-guestlist');
+  const form = document.getElementById('form-guestlist');
+  const status = document.getElementById('form-status');
+  const titreModale = document.getElementById('modale-titre');
+  const quandModale = document.getElementById('modale-quand');
+
+  let soireeChoisie = null;
+
+  const ouvrirModale = carte => {
+    soireeChoisie = {
+      slug: carte.dataset.slug,
+      label: carte.dataset.label,
+    };
+
+    titreModale.textContent = carte.querySelector('h3').textContent.trim();
+    quandModale.textContent = carte.querySelector('.event__when').textContent.trim();
+
+    status.textContent = '';
+    status.classList.remove('is-error');
+    form.reset();
+    modale.showModal();
+    // laisse le temps au navigateur d'afficher avant de donner le focus
+    requestAnimationFrame(() => form.querySelector('#nom').focus());
+  };
+
+  if (agenda && modale) {
+    agenda.addEventListener('click', e => {
+      const bouton = e.target.closest('[data-guestlist]');
+      if (!bouton) return;
+      const carte = bouton.closest('.event');
+      if (carte) ouvrirModale(carte);
+    });
+
+    modale.addEventListener('click', e => {
+      // clic sur le fond (hors du panneau) ou sur la croix
+      if (e.target === modale || e.target.closest('[data-fermer]')) modale.close();
+    });
   }
 
-  /* ── Formulaire de réservation ──
-     Site statique : la demande est ouverte dans le client mail.
-     Pour un envoi automatique, brancher ici un service type
-     Formspree / Netlify Forms / une API maison.               */
-  const form = document.getElementById('form-reservation');
-  const status = document.getElementById('form-status');
-
   if (form) {
-    form.addEventListener('submit', e => {
-      e.preventDefault();
+    form.addEventListener('submit', async e => {
+      e.preventDefault(); // sinon method="dialog" fermerait la fenêtre
 
       if (!form.checkValidity()) {
-        status.textContent = 'Merci de compléter le nom, l’email et la date.';
         status.classList.add('is-error');
+        status.textContent = 'Il nous faut un nom et un moyen de vous joindre.';
         form.querySelector(':invalid')?.focus();
         return;
       }
 
       const d = Object.fromEntries(new FormData(form));
-      const jolieDate = d.date
-        ? new Date(d.date + 'T12:00:00').toLocaleDateString('fr-FR',
-            { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-        : '';
+      const bouton = form.querySelector('button[type="submit"]');
 
-      const sujet = `Réservation Hush Hush — ${d.type} — ${jolieDate}`;
-      const corps = [
-        `Nom : ${d.nom}`,
-        `Email : ${d.email}`,
-        `Date : ${jolieDate}`,
-        `Personnes : ${d.personnes}`,
-        `Motif : ${d.type}`,
-        '',
-        d.message ? `Message :\n${d.message}` : '',
-        '',
-        '— Envoyé depuis le site hushhush-toulouse',
-      ].filter(Boolean).join('\n');
-
+      bouton.disabled = true;
       status.classList.remove('is-error');
-      status.textContent = 'Votre logiciel de mail s’ouvre avec la demande pré-remplie…';
+      status.textContent = 'Envoi…';
 
-      location.href = `mailto:${EMAIL_RESERVATION}`
-        + `?subject=${encodeURIComponent(sujet)}`
-        + `&body=${encodeURIComponent(corps)}`;
+      try {
+        const reponse = await fetch(`${SUPABASE_URL}/rest/v1/hush_hush_guestlist`, {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal',
+          },
+          body: JSON.stringify({
+            event_slug: soireeChoisie?.slug || 'inconnu',
+            event_label: soireeChoisie?.label || 'Soirée non précisée',
+            nom: d.nom,
+            contact: d.contact,
+            personnes: d.personnes === '8+' ? 8 : Number(d.personnes) || 2,
+            message: null,
+          }),
+        });
+
+        if (!reponse.ok) throw new Error(`HTTP ${reponse.status}`);
+
+        modale.classList.add('is-ok');
+        status.textContent = 'C’est noté ! On vous confirme avant la soirée.';
+        setTimeout(() => {
+          modale.close();
+          modale.classList.remove('is-ok');
+        }, 2200);
+      } catch (err) {
+        status.classList.add('is-error');
+        status.textContent =
+          'L’envoi a échoué. Réessayez, ou écrivez-nous sur Instagram.';
+      } finally {
+        bouton.disabled = false;
+      }
     });
   }
 })();

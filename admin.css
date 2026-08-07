@@ -1,0 +1,270 @@
+/* ══════════════════════════════════════════════════════════
+   Hush Hush — console guestlist (page privée)
+   Reprend les variables de styles.css, mais en version outil :
+   plus dense, plus sobre, aucune animation décorative.
+   ══════════════════════════════════════════════════════════ */
+
+.admin {
+  background: var(--noir);
+  min-height: 100svh;
+}
+.admin::after { display: none; } /* pas de grain sur un écran de travail */
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ─────────── Connexion ─────────── */
+
+.connexion {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 2rem var(--pad);
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(240, 121, 12, .2) 0%, rgba(240, 121, 12, 0) 60%),
+    var(--noir);
+}
+
+.connexion__box {
+  width: min(380px, 100%);
+  text-align: center;
+  padding: clamp(2rem, 5vw, 2.75rem);
+  border: 1px solid var(--ligne);
+  border-radius: 4px;
+  background: var(--brun-fonce);
+}
+.connexion__logo { width: 62px; margin: 0 auto 1.4rem; opacity: .9; }
+.connexion__label {
+  margin: 0 0 .3rem;
+  font-size: .62rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.connexion__titre {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 2rem;
+  margin: 0 0 2rem;
+}
+.connexion__box .field { text-align: left; margin-bottom: 1.1rem; }
+.connexion__btn { width: 100%; margin-top: .6rem; }
+.connexion .form__status { text-align: center; margin-top: 1rem; }
+
+/* ─────────── Barre du haut ─────────── */
+
+.console__nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(21, 7, 5, .92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--ligne);
+}
+.console__nav-inner {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: .9rem var(--pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
+}
+.console__brand {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  font-size: .74rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--creme);
+}
+.console__brand img { width: 32px; }
+.console__actions { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.console__moi {
+  font-size: .72rem;
+  color: var(--texte-doux);
+  margin-right: .4rem;
+}
+
+.console__corps {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: clamp(2rem, 4vw, 3rem) var(--pad) 5rem;
+}
+
+/* ─────────── Chiffres ─────────── */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 1px;
+  background: var(--ligne);
+  border: 1px solid var(--ligne);
+  margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+}
+.stat {
+  background: var(--brun-fonce);
+  padding: clamp(1.4rem, 3vw, 1.9rem) 1.25rem;
+  text-align: center;
+}
+.stat b {
+  display: block;
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 1.8rem + 1.6vw, 3rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--or);
+}
+.stat span {
+  display: block;
+  margin-top: .5rem;
+  font-size: .66rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+
+/* ─────────── Blocs ─────────── */
+
+.bloc { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
+.bloc__tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.bloc__tete h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.6rem;
+  margin: 0;
+}
+.bloc__outils { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+
+.filtre select,
+.recherche {
+  padding: .6rem .9rem;
+  font-size: .85rem;
+  background: rgba(248, 232, 212, .05);
+  border: 1px solid var(--ligne);
+  border-radius: 100px;
+  color: var(--creme);
+  font-family: var(--sans);
+  font-weight: 300;
+}
+.filtre select { padding-right: 2.4rem; }
+.recherche { min-width: 12rem; }
+.filtre select:focus, .recherche:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+
+/* ─────────── Répartition par soirée ─────────── */
+
+.parsoiree { display: grid; gap: .75rem; }
+.ligne-soiree {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .5rem 1.25rem;
+  padding: .9rem 1.15rem;
+  border: 1px solid var(--ligne);
+  border-radius: 3px;
+  background: var(--brun-fonce);
+}
+.ligne-soiree__nom { font-family: var(--serif); font-size: 1.15rem; }
+.ligne-soiree__chiffres {
+  font-size: .74rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+  white-space: nowrap;
+}
+.ligne-soiree__chiffres b { color: var(--or); font-weight: 500; }
+.ligne-soiree__barre {
+  grid-column: 1 / -1;
+  height: 3px;
+  background: rgba(248, 232, 212, .1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ligne-soiree__barre i {
+  display: block;
+  height: 100%;
+  background: var(--orange);
+}
+
+/* ─────────── Tableau ─────────── */
+
+.tableau-enveloppe {
+  overflow-x: auto;
+  border: 1px solid var(--ligne);
+  border-radius: 3px;
+}
+.tableau {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+  min-width: 44rem;
+}
+.tableau th {
+  text-align: left;
+  font-size: .64rem;
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+  padding: .9rem 1rem;
+  background: rgba(248, 232, 212, .04);
+  border-bottom: 1px solid var(--ligne);
+  white-space: nowrap;
+}
+.tableau td {
+  padding: .9rem 1rem;
+  border-bottom: 1px solid rgba(248, 232, 212, .07);
+  vertical-align: middle;
+}
+.tableau tbody tr:last-child td { border-bottom: 0; }
+.tableau tbody tr:hover { background: rgba(248, 232, 212, .03); }
+.tableau .col-nom { font-family: var(--serif); font-size: 1.1rem; }
+.tableau .col-contact a { color: var(--creme-doux); border-bottom: 1px solid var(--ligne); }
+.tableau .col-contact a:hover { border-bottom-color: var(--orange); }
+.tableau .col-pers { text-align: center; color: var(--or); }
+.tableau .col-soiree { color: var(--texte-doux); font-size: .82rem; }
+.tableau .col-date { color: var(--texte-doux); font-size: .8rem; white-space: nowrap; }
+
+.supprimer {
+  border: 0;
+  background: none;
+  color: rgba(248, 232, 212, .35);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: .3rem .5rem;
+  cursor: pointer;
+  transition: color .3s var(--ease);
+}
+.supprimer:hover { color: #E8897C; }
+
+.vide {
+  margin: 2rem 0 0;
+  text-align: center;
+  color: var(--texte-doux);
+  font-size: .9rem;
+}
+
+@media (max-width: 620px) {
+  .bloc__tete { align-items: flex-start; }
+  .bloc__outils { width: 100%; }
+  .recherche { flex: 1; min-width: 0; }
+}
