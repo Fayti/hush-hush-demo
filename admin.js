@@ -443,9 +443,51 @@
     });
   }
 
+  /* ── Mode démonstration ──
+     admin.html?demo=1 affiche la console remplie de données fictives,
+     sans connexion. Sert à montrer l'outil (au client, sur un téléphone,
+     n'importe où) sans distribuer d'identifiants. Aucune écriture n'est
+     possible : rien n'est branché sur Supabase dans ce mode.          */
+
+  const DEMO = [
+    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Camille Ferrand', '06 51 22 44 98',       4, true],
+    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Yanis Belkacem',  'yanis.b@gmail.com',    2, true],
+    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Léa Marchetti',   '07 83 01 55 62',       6, false],
+    ['ahla-leila',     'Ahla Leila — dim. 2 août',        'Sofia Haddad',    'sofia.haddad@me.com',  3, false],
+    ['ahla-leila',     'Ahla Leila — dim. 2 août',        'Thomas Vidal',    '06 29 88 74 10',       2, false],
+    ['pascal-kleiman', 'Pascal Kleiman — ven. 31 juillet','Nour Benali',     '07 44 12 03 96',       5, true],
+    ['pascal-kleiman', 'Pascal Kleiman — ven. 31 juillet','Mathis Roussel',  'mathis.roussel@pm.me', 2, false],
+  ];
+
+  const lancerDemo = () => {
+    session = { email: 'démonstration' };
+    demandes = DEMO.map(([slug, label, nom, contact, personnes, arrive], i) => ({
+      id: `demo-${i}`,
+      event_slug: slug, event_label: label,
+      nom, contact, personnes, arrive, message: null,
+      created_at: new Date(Date.now() - (i + 1) * 8 * 3600 * 1000).toISOString(),
+    }));
+
+    afficherConsole();
+    etat('Mode démonstration — données fictives, rien n’est enregistré.');
+    remplirFiltre();
+    dessiner();
+
+    // le pointage reste manipulable, mais purement à l'écran
+    ecouter('tableau-corps', 'change', e => {
+      const c = e.target.closest('[data-arrive]');
+      if (!c) return;
+      const d = demandes.find(x => x.id === c.dataset.arrive);
+      if (d) { d.arrive = c.checked; dessinerStats(); dessinerParSoiree(); }
+    });
+  };
+
   /* ── Démarrage : on reprend la session si elle est encore valable ── */
 
   (async () => {
+    // le mode démo court-circuite tout : ni config, ni connexion
+    if (new URLSearchParams(location.search).has('demo')) return lancerDemo();
+
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       return afficherConnexion('config.js est introuvable ou incomplet.');
     }
