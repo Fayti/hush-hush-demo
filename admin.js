@@ -484,6 +484,11 @@
 
   /* ── Démarrage : on reprend la session si elle est encore valable ── */
 
+  /* Drapeau lu par le garde-fou d'admin.html : tant qu'il est absent,
+     c'est que ce fichier n'a pas tourné (cache, 404, erreur de syntaxe). */
+  window.__HH_ADMIN_OK = true;
+  console.info('[console Hush Hush] admin.js chargé — version 2026-08-08b');
+
   (async () => {
     // le mode démo court-circuite tout : ni config, ni connexion
     if (new URLSearchParams(location.search).has('demo')) return lancerDemo();

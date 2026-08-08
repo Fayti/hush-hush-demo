@@ -40,6 +40,12 @@
 
     <button class="btn connexion__btn" type="submit">Se connecter</button>
     <p class="form__status" id="connexion-status" role="status" aria-live="polite"></p>
+
+    <!-- Rempli par le script en ligne ci-dessous UNIQUEMENT si admin.js
+         n'a pas démarré. Sans ce garde-fou, le bouton ne serait relié à
+         rien et la page se contenterait de se recharger à l'identique —
+         impossible à comprendre pour l'utilisateur. -->
+    <p class="panne" id="panne" hidden></p>
   </form>
 </section>
 
@@ -118,5 +124,47 @@
 
 <script src="config.js?v=202608080202"></script>
 <script src="admin.js?v=202608080202"></script>
+
+<!-- ────────── GARDE-FOU ──────────
+     Ce script est écrit DANS la page : si le HTML s'affiche, il tourne,
+     forcément. Il vérifie qu'admin.js a bien démarré et, sinon, l'écrit
+     noir sur blanc plutôt que de laisser un bouton mort. -->
+<script>
+(function () {
+  var VERSION_HTML = '2026-08-08b';
+
+  function signaler(texte) {
+    var p = document.getElementById('panne');
+    if (!p) { alert(texte); return; }
+    p.hidden = false;
+    p.textContent = texte;
+  }
+
+  // le bouton ne doit jamais recharger la page en silence
+  var form = document.getElementById('form-connexion');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      if (!window.__HH_ADMIN_OK) {
+        e.preventDefault();
+        signaler(
+          'Le script de la console ne s’est pas chargé, le bouton est donc ' +
+          'inactif. Rechargez en vidant le cache (Chrome : ⌘⇧R — iPhone : ' +
+          'Réglages → Safari → Effacer historique et données). Page ' +
+          VERSION_HTML + '.'
+        );
+      }
+    });
+  }
+
+  window.addEventListener('load', function () {
+    if (window.__HH_ADMIN_OK) return;
+    signaler(
+      'admin.js ne s’est pas exécuté (page ' + VERSION_HTML + ', config ' +
+      (window.HUSH_HUSH ? 'chargée' : 'absente') + '). ' +
+      'Rechargez en vidant le cache du navigateur.'
+    );
+  });
+})();
+</script>
 </body>
 </html>

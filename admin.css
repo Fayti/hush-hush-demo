@@ -119,6 +119,21 @@
   user-select: text;
 }
 
+/* panne de chargement : doit se voir immédiatement */
+.panne {
+  margin: 1.25rem 0 0;
+  padding: .85rem 1rem;
+  border: 1px solid #C4574B;
+  border-radius: 3px;
+  background: rgba(196, 87, 75, .12);
+  color: #F0A79C;
+  font-size: .82rem;
+  line-height: 1.6;
+  text-align: left;
+  word-break: break-word;
+  user-select: text;
+}
+
 /* ─────────── Chiffres ─────────── */
 
 .stats {
