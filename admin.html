@@ -17,8 +17,12 @@
 </head>
 <body class="admin">
 
-<!-- ────────── CONNEXION ────────── -->
-<section class="connexion" id="connexion" hidden>
+<!-- ────────── CONNEXION ──────────
+     Volontairement PAS `hidden` : c'est l'écran par défaut. Si le JS
+     échoue pour une raison quelconque, on voit au moins le formulaire
+     plutôt qu'une page blanche. C'est le JS qui le masque une fois la
+     console prête. -->
+<section class="connexion" id="connexion">
   <form class="connexion__box" id="form-connexion" novalidate>
     <img class="connexion__logo" src="assets/mark-cream.png" alt="" width="90" height="69">
     <p class="connexion__label">Console guestlist</p>

@@ -9,6 +9,16 @@
 
   const $ = id => document.getElementById(id);
 
+  /* Écoute défensive : si un élément manque (page HTML servie depuis un
+     cache plus ancien que ce script, par exemple), on l'ignore au lieu
+     de faire planter tout le fichier — un plantage ici laisserait
+     l'utilisateur devant une page blanche. */
+  const ecouter = (id, evenement, fn) => {
+    const el = $(id);
+    if (el) el.addEventListener(evenement, fn);
+    else console.warn(`[console] élément « ${id} » absent de la page`);
+  };
+
   const vueConnexion = $('connexion');
   const vueConsole = $('console');
   const formConnexion = $('form-connexion');
@@ -43,16 +53,19 @@
   const afficherConnexion = message => {
     session = null;
     effacerSession();
-    vueConsole.hidden = true;
-    vueConnexion.hidden = false;
-    statutConnexion.classList.toggle('is-error', Boolean(message));
-    statutConnexion.textContent = message || '';
+    if (vueConsole) vueConsole.hidden = true;
+    if (vueConnexion) vueConnexion.hidden = false;
+    if (statutConnexion) {
+      statutConnexion.classList.toggle('is-error', Boolean(message));
+      statutConnexion.textContent = message || '';
+    }
   };
 
   const afficherConsole = () => {
-    vueConnexion.hidden = true;
-    vueConsole.hidden = false;
-    $('console-moi').textContent = session.email;
+    if (vueConnexion) vueConnexion.hidden = true;
+    if (vueConsole) vueConsole.hidden = false;
+    const moi = $('console-moi');
+    if (moi) moi.textContent = session.email;
   };
 
   /* Message d'état de la console : jamais d'écran vide sans explication. */
@@ -115,7 +128,7 @@
 
   /* ── Connexion ── */
 
-  formConnexion.addEventListener('submit', async e => {
+  formConnexion?.addEventListener('submit', async e => {
     e.preventDefault();
 
     if (!formConnexion.checkValidity()) {
@@ -153,7 +166,7 @@
     }
   });
 
-  $('deconnexion').addEventListener('click', () => afficherConnexion());
+  ecouter('deconnexion', 'click', () => afficherConnexion());
 
   /* ── Chargement des demandes ── */
 
@@ -197,7 +210,7 @@
     dessiner();
   };
 
-  $('rafraichir').addEventListener('click', charger);
+  ecouter('rafraichir', 'click', charger);
 
   /* ── Rendu ── */
 
@@ -249,9 +262,9 @@
   };
 
   const listeFiltree = () => {
-    const soiree = $('filtre-soiree').value;
-    const q = $('recherche').value.trim().toLowerCase();
-    const restants = $('filtre-restants').checked;
+    const soiree = $('filtre-soiree')?.value || '';
+    const q = ($('recherche')?.value || '').trim().toLowerCase();
+    const restants = $('filtre-restants')?.checked || false;
 
     return demandes.filter(d => {
       if (soiree && d.event_slug !== soiree) return false;
@@ -302,16 +315,16 @@
     select.value = actuel;
   };
 
-  $('filtre-soiree').addEventListener('change', dessinerTableau);
-  $('recherche').addEventListener('input', dessinerTableau);
-  $('filtre-restants').addEventListener('change', dessinerTableau);
+  ecouter('filtre-soiree', 'change', dessinerTableau);
+  ecouter('recherche', 'input', dessinerTableau);
+  ecouter('filtre-restants', 'change', dessinerTableau);
 
   /* ── Pointage à l'entrée ──
      On coche tout de suite à l'écran, on écrit ensuite : à la porte,
      l'affichage doit répondre au doigt, pas au réseau. En cas d'échec
      on revient en arrière et on le dit.                              */
 
-  $('tableau-corps').addEventListener('change', async e => {
+  ecouter('tableau-corps', 'change', async e => {
     const case_ = e.target.closest('[data-arrive]');
     if (!case_) return;
 
@@ -343,7 +356,7 @@
 
   /* ── Suppression ── */
 
-  $('tableau-corps').addEventListener('click', async e => {
+  ecouter('tableau-corps', 'click', async e => {
     const bouton = e.target.closest('[data-supprimer]');
     if (!bouton) return;
 
@@ -365,7 +378,7 @@
 
   /* ── Export CSV ── */
 
-  $('export').addEventListener('click', () => {
+  ecouter('export', 'click', () => {
     const liste = listeFiltree();
     if (!liste.length) return;
 
