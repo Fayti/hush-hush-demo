@@ -142,37 +142,82 @@
   user-select: text;
 }
 
-/* ─────────── Chiffres ─────────── */
+/* ─────────── Chiffres clés ───────────
+   Les valeurs portent une couleur de TEXTE, jamais la couleur de donnée :
+   l'orange est réservé aux jauges, sinon il ne veut plus rien dire.
+   Chiffres en sans (pas en serif) : c'est un outil, pas une affiche. */
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
   gap: 1px;
   background: var(--ligne);
   border: 1px solid var(--ligne);
-  margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 1rem;
 }
 .stat {
   background: var(--brun-fonce);
-  padding: clamp(1.4rem, 3vw, 1.9rem) 1.25rem;
-  text-align: center;
+  padding: clamp(1.3rem, 3vw, 1.75rem) 1.25rem;
 }
 .stat b {
   display: block;
-  font-family: var(--serif);
-  font-size: clamp(2.2rem, 1.8rem + 1.6vw, 3rem);
-  font-weight: 300;
+  font-family: var(--sans);
+  font-size: clamp(2rem, 1.6rem + 1.5vw, 2.6rem);
+  font-weight: 500;
   line-height: 1;
-  color: var(--or);
+  letter-spacing: -.02em;
+  color: var(--creme);
+  /* chiffres proportionnels : en grand, tabular-nums fait des trous */
 }
 .stat span {
   display: block;
-  margin-top: .5rem;
-  font-size: .66rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
+  margin-top: .55rem;
+  font-size: .7rem;
+  letter-spacing: .1em;
   color: var(--texte-doux);
 }
+/* le chiffre qui compte à la porte */
+.stat--cle b { color: var(--orange-vif); }
+
+/* jauge d'ensemble, juste sous les chiffres */
+.total {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .9rem 1.15rem;
+  border: 1px solid var(--ligne);
+  border-radius: 3px;
+  background: var(--brun-fonce);
+  margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+}
+.total__texte {
+  font-size: .78rem;
+  letter-spacing: .06em;
+  color: var(--texte-doux);
+  white-space: nowrap;
+}
+.total__texte b { color: var(--creme); font-weight: 500; font-variant-numeric: tabular-nums; }
+.total .jauge { flex: 1; }
+
+/* ─────────── Jauge ───────────
+   Un seul ton : la piste est une version basse de la teinte de
+   remplissage, pour que l'état se lise sur toute la barre. */
+.jauge {
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(240, 121, 12, .16);
+  overflow: hidden;
+}
+.jauge i {
+  display: block;
+  height: 100%;
+  background: var(--orange);
+  border-radius: 0 4px 4px 0; /* arrondi côté donnée, droit à l'origine */
+  transition: width .5s var(--ease);
+}
+.jauge i[style*="width: 100%"] { border-radius: 4px; }
 
 /* ─────────── Blocs ─────────── */
 
@@ -211,39 +256,43 @@
   border-color: var(--orange);
 }
 
-/* ─────────── Répartition par soirée ─────────── */
+/* ─────────── Remplissage par soirée ───────────
+   Chaque ligne répond à une seule question : combien de monde est
+   déjà entré sur le total attendu. */
 
-.parsoiree { display: grid; gap: .75rem; }
-.ligne-soiree {
+.parsoiree { display: grid; gap: .6rem; }
+
+.soiree-ligne {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: .5rem 1.25rem;
-  padding: .9rem 1.15rem;
+  align-items: baseline;
+  gap: .55rem 1.25rem;
+  padding: 1rem 1.15rem;
   border: 1px solid var(--ligne);
   border-radius: 3px;
   background: var(--brun-fonce);
 }
-.ligne-soiree__nom { font-family: var(--serif); font-size: 1.15rem; }
-.ligne-soiree__chiffres {
-  font-size: .74rem;
-  letter-spacing: .1em;
-  text-transform: uppercase;
+.soiree-ligne__nom {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  color: var(--creme);
+  min-width: 0;
+}
+.soiree-ligne__ratio {
+  font-size: .82rem;
+  letter-spacing: .04em;
   color: var(--texte-doux);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums; /* colonne de chiffres : ils s'alignent */
 }
-.ligne-soiree__chiffres b { color: var(--or); font-weight: 500; }
-.ligne-soiree__barre {
+.soiree-ligne__ratio b { color: var(--creme); font-weight: 500; }
+.soiree-ligne__ratio em { font-style: normal; color: var(--orange-vif); }
+.soiree-ligne .jauge { grid-column: 1 / -1; }
+.soiree-ligne__pied {
   grid-column: 1 / -1;
-  height: 3px;
-  background: rgba(248, 232, 212, .1);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.ligne-soiree__barre i {
-  display: block;
-  height: 100%;
-  background: var(--orange);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: rgba(248, 232, 212, .45);
 }
 
 /* ─────────── Tableau ─────────── */
@@ -374,8 +423,35 @@
   font-size: .9rem;
 }
 
-@media (max-width: 620px) {
+/* ── Écran étroit ──
+   En ligne, les outils s'écrasaient : la recherche tombait à 32 px de
+   large. On passe donc en grille, la recherche sur toute la largeur. */
+@media (max-width: 760px) {
   .bloc__tete { align-items: flex-start; }
-  .bloc__outils { width: 100%; }
-  .recherche { flex: 1; min-width: 0; }
+
+  .bloc__outils {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem;
+  }
+  .recherche {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+  }
+  .filtre, .filtre select { width: 100%; }
+  .bascule { justify-content: center; text-align: center; line-height: 1.25; }
+  .bloc__outils > .btn { width: 100%; }
+
+  /* la ligne de soirée respire mieux en deux temps */
+  .soiree-ligne { grid-template-columns: minmax(0, 1fr); }
+  .soiree-ligne__ratio { justify-self: start; }
+}
+
+/* ── Téléphone ── */
+@media (max-width: 460px) {
+  .bloc__outils { grid-template-columns: 1fr; }
+  .total { flex-wrap: wrap; gap: .6rem .9rem; }
+  .total .jauge { flex: 1 0 100%; order: 3; }
 }

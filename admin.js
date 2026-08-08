@@ -227,37 +227,56 @@
     return [...carte.values()].sort((a, b) => b.personnes - a.personnes);
   };
 
+  /* Chiffres clés : on répond aux questions qu'on se pose à la porte —
+     combien j'attends, combien sont entrés, combien il en reste.
+     « Nombre de soirées » n'aidait personne, il saute.            */
   const dessinerStats = () => {
-    const total = demandes.length;
     const personnes = demandes.reduce((n, d) => n + (d.personnes || 0), 0);
-    const entrees = demandes.filter(d => d.arrive).reduce((n, d) => n + (d.personnes || 0), 0);
-    const soirees = parSoiree(demandes).length;
+    const entrees   = demandes.filter(d => d.arrive)
+                              .reduce((n, d) => n + (d.personnes || 0), 0);
+    const restants  = personnes - entrees;
+    const part      = personnes ? Math.round((entrees / personnes) * 100) : 0;
 
     $('stats').innerHTML = [
-      [total, total > 1 ? 'demandes' : 'demande'],
-      [personnes, 'personnes attendues'],
-      [entrees, 'déjà entrées'],
-      [soirees, soirees > 1 ? 'soirées concernées' : 'soirée concernée'],
-    ].map(([n, libelle]) =>
-      `<div class="stat"><b>${n}</b><span>${libelle}</span></div>`
+      { n: personnes, libelle: 'personnes attendues' },
+      { n: entrees,   libelle: 'déjà entrées' },
+      { n: restants,  libelle: 'reste à faire entrer', cle: true },
+      { n: demandes.length, libelle: demandes.length > 1 ? 'demandes' : 'demande' },
+    ].map(({ n, libelle, cle }) =>
+      `<div class="stat${cle ? ' stat--cle' : ''}"><b>${n}</b><span>${libelle}</span></div>`
     ).join('');
+
+    const total = $('total');
+    if (!total) return;
+    total.hidden = personnes === 0;
+    total.innerHTML =
+      `<span class="total__texte"><b>${entrees}</b> entrées sur <b>${personnes}</b></span>` +
+      `<span class="jauge"><i style="width:${part}%"></i></span>` +
+      `<span class="total__texte"><b>${part}&nbsp;%</b></span>`;
   };
 
+  /* Une ligne par soirée, chacune répondant à « c'est rempli à combien ? ».
+     La jauge mesure les entrées sur l'attendu — pas la taille relative des
+     soirées entre elles, qui ne dit rien d'utile.                   */
   const dessinerParSoiree = () => {
     const groupes = parSoiree(demandes);
-    const max = Math.max(1, ...groupes.map(g => g.personnes));
 
     $('parsoiree').innerHTML = groupes.length
-      ? groupes.map(g => `
-          <div class="ligne-soiree">
-            <span class="ligne-soiree__nom">${echapper(g.label)}</span>
-            <span class="ligne-soiree__chiffres">
-              <b>${g.personnes}</b> pers. · ${g.inscrits} demande${g.inscrits > 1 ? 's' : ''}${
-                g.arrivees ? ` · ${g.arrivees} entrée${g.arrivees > 1 ? 's' : ''}` : ''
-              }
+      ? groupes.map(g => {
+          const part = g.personnes ? Math.round((g.arrivees / g.personnes) * 100) : 0;
+          return `
+          <div class="soiree-ligne">
+            <span class="soiree-ligne__nom">${echapper(g.label)}</span>
+            <span class="soiree-ligne__ratio">
+              <b>${g.arrivees}</b> / ${g.personnes} pers. · <em>${part}&nbsp;%</em>
             </span>
-            <span class="ligne-soiree__barre"><i style="width:${(g.personnes / max) * 100}%"></i></span>
-          </div>`).join('')
+            <span class="jauge"><i style="width:${part}%"></i></span>
+            <span class="soiree-ligne__pied">
+              ${g.inscrits} demande${g.inscrits > 1 ? 's' : ''} ·
+              ${g.personnes - g.arrivees} à faire entrer
+            </span>
+          </div>`;
+        }).join('')
       : '<p class="vide">Rien à afficher pour l’instant.</p>';
   };
 
