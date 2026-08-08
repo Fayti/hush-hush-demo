@@ -10,6 +10,14 @@
 }
 .admin::after { display: none; } /* pas de grain sur un écran de travail */
 
+/* ⚠️ Indispensable.
+   L'attribut `hidden` ne vaut que `display: none` dans la feuille du
+   navigateur : n'importe quelle règle de classe le bat. `.connexion`
+   ayant `display: grid`, masquer l'écran de connexion ne faisait rien —
+   il restait affiché et poussait la console hors de l'écran, en dessous.
+   Cette ligne rend `hidden` réellement effectif. */
+[hidden] { display: none !important; }
+
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
