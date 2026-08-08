@@ -101,6 +101,24 @@
   padding: clamp(2rem, 4vw, 3rem) var(--pad) 5rem;
 }
 
+.console__etat {
+  margin: 0 0 1.5rem;
+  padding: .85rem 1.15rem;
+  border: 1px solid var(--ligne);
+  border-left: 2px solid var(--orange);
+  border-radius: 3px;
+  background: var(--brun-fonce);
+  color: var(--creme-doux);
+  font-size: .88rem;
+}
+
+/* le message de connexion peut contenir une requête SQL à recopier */
+.connexion .form__status {
+  word-break: break-word;
+  line-height: 1.6;
+  user-select: text;
+}
+
 /* ─────────── Chiffres ─────────── */
 
 .stats {

@@ -55,6 +55,14 @@
     $('console-moi').textContent = session.email;
   };
 
+  /* Message d'état de la console : jamais d'écran vide sans explication. */
+  const etat = texte => {
+    const zone = $('console-etat');
+    if (!zone) return;
+    zone.textContent = texte || '';
+    zone.hidden = !texte;
+  };
+
   /* Renouvelle le jeton. Renvoie true si on repart avec une session valable. */
   const renouveler = async () => {
     if (!session?.refresh_token) return false;
@@ -150,6 +158,8 @@
   /* ── Chargement des demandes ── */
 
   const charger = async () => {
+    etat('Chargement…');
+
     const reponse = await api('/rest/v1/hush_hush_guestlist?select=*&order=created_at.desc');
     if (!reponse) return;                       // session perdue, déjà géré
 
@@ -161,6 +171,28 @@
     if (!reponse.ok) return afficherConnexion('Impossible de charger les demandes.');
 
     demandes = await reponse.json();
+
+    /* Piège : quand la RLS filtre tout, PostgREST renvoie 200 avec une
+       liste vide — pas une erreur. Sans ce contrôle, un compte non
+       autorisé verrait une console vide sans comprendre pourquoi.     */
+    if (!demandes.length) {
+      const verif = await api(
+        `/rest/v1/hush_hush_admins?select=email&email=eq.${encodeURIComponent(session.email)}`
+      );
+      const autorise = verif && verif.ok && (await verif.json()).length > 0;
+
+      if (!autorise) {
+        return afficherConnexion(
+          `Le compte ${session.email} n’est pas autorisé à lire la guestlist. ` +
+          'Exécutez dans le SQL Editor : ' +
+          `insert into public.hush_hush_admins (email) values ('${session.email}');`
+        );
+      }
+      etat('Aucune demande pour le moment.');
+    } else {
+      etat('');
+    }
+
     remplirFiltre();
     dessiner();
   };
