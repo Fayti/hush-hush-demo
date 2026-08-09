@@ -219,6 +219,21 @@
 }
 .jauge i[style*="width: 100%"] { border-radius: 4px; }
 
+/* explication des chiffres : sans elle, les jauges à zéro passent
+   pour un bug alors que c'est juste que rien n'a été coché */
+.explication {
+  margin: 0 0 clamp(2.5rem, 5vw, 3.5rem);
+  padding: .95rem 1.15rem;
+  border: 1px dashed rgba(248, 232, 212, .2);
+  border-radius: 3px;
+  font-size: .84rem;
+  line-height: 1.7;
+  color: var(--texte-doux);
+  max-width: 78ch;
+}
+.explication strong { color: var(--creme); font-weight: 500; }
+.explication br { content: ""; display: block; margin-top: .5rem; }
+
 /* ─────────── Blocs ─────────── */
 
 .bloc { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }

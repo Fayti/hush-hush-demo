@@ -180,7 +180,8 @@
             event_label: soireeChoisie?.label || 'Soirée non précisée',
             nom: d.nom,
             contact: d.contact,
-            personnes: d.personnes === '8+' ? 8 : Number(d.personnes) || 2,
+            // borné à ce qu'accepte la base (1 à 20)
+            personnes: Math.min(20, Math.max(1, Number(d.personnes) || 2)),
             message: null,
           }),
         });
@@ -188,7 +189,10 @@
         if (!reponse.ok) throw new Error(`HTTP ${reponse.status}`);
 
         modale.classList.add('is-ok');
-        status.textContent = 'C’est noté ! On vous confirme avant la soirée.';
+        // on redit la règle ici : c'est le dernier écran que la personne voit
+        status.innerHTML =
+          'Vous êtes sur la liste.<br>' +
+          '<span class="form__rappel">Le physio décide à la porte. Tenue soignée.</span>';
         setTimeout(() => {
           modale.close();
           modale.classList.remove('is-ok');

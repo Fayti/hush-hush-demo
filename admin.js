@@ -201,7 +201,7 @@
           `insert into public.hush_hush_admins (email) values ('${session.email}');`
         );
       }
-      etat('Aucune demande pour le moment.');
+      etat('Aucune inscription pour le moment.');
     } else {
       etat('');
     }
@@ -238,10 +238,10 @@
     const part      = personnes ? Math.round((entrees / personnes) * 100) : 0;
 
     $('stats').innerHTML = [
-      { n: personnes, libelle: 'personnes attendues' },
-      { n: entrees,   libelle: 'déjà entrées' },
-      { n: restants,  libelle: 'reste à faire entrer', cle: true },
-      { n: demandes.length, libelle: demandes.length > 1 ? 'demandes' : 'demande' },
+      { n: demandes.length, libelle: demandes.length > 1 ? 'inscriptions' : 'inscription' },
+      { n: personnes, libelle: 'personnes sur la liste' },
+      { n: entrees,   libelle: 'déjà arrivées' },
+      { n: restants,  libelle: 'pas encore arrivées', cle: true },
     ].map(({ n, libelle, cle }) =>
       `<div class="stat${cle ? ' stat--cle' : ''}"><b>${n}</b><span>${libelle}</span></div>`
     ).join('');
@@ -250,7 +250,7 @@
     if (!total) return;
     total.hidden = personnes === 0;
     total.innerHTML =
-      `<span class="total__texte"><b>${entrees}</b> entrées sur <b>${personnes}</b></span>` +
+      `<span class="total__texte"><b>${entrees}</b> arrivées sur <b>${personnes}</b></span>` +
       `<span class="jauge"><i style="width:${part}%"></i></span>` +
       `<span class="total__texte"><b>${part}&nbsp;%</b></span>`;
   };
@@ -268,12 +268,12 @@
           <div class="soiree-ligne">
             <span class="soiree-ligne__nom">${echapper(g.label)}</span>
             <span class="soiree-ligne__ratio">
-              <b>${g.arrivees}</b> / ${g.personnes} pers. · <em>${part}&nbsp;%</em>
+              <b>${g.arrivees}</b> / ${g.personnes} arrivées · <em>${part}&nbsp;%</em>
             </span>
             <span class="jauge"><i style="width:${part}%"></i></span>
             <span class="soiree-ligne__pied">
-              ${g.inscrits} demande${g.inscrits > 1 ? 's' : ''} ·
-              ${g.personnes - g.arrivees} à faire entrer
+              ${g.inscrits} inscription${g.inscrits > 1 ? 's' : ''} ·
+              ${g.personnes - g.arrivees} pas encore arrivée${g.personnes - g.arrivees > 1 ? 's' : ''}
             </span>
           </div>`;
         }).join('')
@@ -302,7 +302,7 @@
         <td class="col-arrive">
           <label class="pointage">
             <input type="checkbox" data-arrive="${d.id}" ${d.arrive ? 'checked' : ''}
-                   aria-label="Marquer ${echapper(d.nom)} comme arrivé">
+                   aria-label="Marquer ${echapper(d.nom)} comme arrivé à l’entrée">
             <span aria-hidden="true"></span>
           </label>
         </td>
@@ -381,7 +381,8 @@
 
     const id = bouton.dataset.supprimer;
     const demande = demandes.find(d => d.id === id);
-    if (!confirm(`Supprimer la demande de ${demande?.nom ?? 'cette personne'} ? C'est définitif.`)) return;
+    if (!confirm(`Retirer ${demande?.nom ?? 'cette personne'} de la liste ? \n\n` +
+    `À n'utiliser qu'en cas d'erreur ou de doublon : les inscrits sont validés d'office. C'est définitif.`)) return;
 
     bouton.disabled = true;
     const reponse = await api(`/rest/v1/hush_hush_guestlist?id=eq.${id}`, { method: 'DELETE' });
@@ -403,7 +404,7 @@
 
     const cellule = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const lignes = [
-      ['Nom', 'Contact', 'Personnes', 'Soirée', 'Entré', 'Message', 'Reçue le'],
+      ['Nom', 'Contact', 'Personnes', 'Soirée', 'Arrivé', 'Message', 'Inscrit le'],
       ...liste.map(d => [
         d.nom, d.contact, d.personnes,
         d.event_label || d.event_slug,
