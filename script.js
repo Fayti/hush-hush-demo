@@ -110,6 +110,7 @@
   const agenda = document.getElementById('agenda');
   const noteAgenda = document.getElementById('agenda-note');
   const avisSite = document.getElementById('avis-site');
+  const avisInfos = document.getElementById('avis-infos');
 
   const carteEvenement = (ev, avis) => {
     const titreHtml = echapper(ev.titre).replace(/ &amp; /g, ' <span class="amp">&amp;</span> ');
@@ -169,14 +170,27 @@
   };
 
   const dessinerAvisSite = notices => {
-    if (!avisSite) return;
     // seules les annonces sans soirée précise s'affichent ici ; les
     // autres se posent sur la carte de la soirée concernée
     const globales = notices.filter(n => !n.event_slug);
-    avisSite.innerHTML = globales.map(n => `
-      <div class="avis avis--${echapper(n.type)}">
-        <p>${echapper(n.message)}</p>
-      </div>`).join('');
+
+    // le bandeau du tout début de page : vu seulement en arrivant en haut
+    if (avisSite) {
+      avisSite.innerHTML = globales.map(n => `
+        <div class="avis avis--${echapper(n.type)}">
+          <p>${echapper(n.message)}</p>
+        </div>`).join('');
+    }
+
+    // la même annonce, répétée dans Infos pratiques : quelqu'un qui
+    // arrive directement sur #infos (lien partagé, clic dans le menu)
+    // ne défile jamais devant le bandeau du haut, il faut donc la revoir
+    if (avisInfos) {
+      avisInfos.innerHTML = globales.map(n => `
+        <div class="avis-carte avis-carte--${echapper(n.type)} reveal is-in">
+          <p>${echapper(n.message)}</p>
+        </div>`).join('');
+    }
   };
 
   if (agenda) {

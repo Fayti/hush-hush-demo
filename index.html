@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=202608101628">
+<link rel="stylesheet" href="styles.css?v=202608101654">
 
 <script type="application/ld+json">
 {
@@ -176,6 +176,12 @@
         <h2>Nous trouver</h2>
       </div>
 
+      <!-- Même annonces que le bandeau du haut (script.js, id="avis-site")
+           mais rendues ici aussi : quelqu'un qui arrive directement sur
+           #infos — lien partagé, clic dans le menu — ne voit jamais le
+           bandeau du tout début de page, il faut donc les répéter. -->
+      <div id="avis-infos" aria-live="polite"></div>
+
       <div class="infos__grid">
         <dl class="infos__list reveal">
           <div>
@@ -293,7 +299,7 @@
   </div>
 </footer>
 
-<script src="config.js?v=202608101628"></script>
-<script src="script.js?v=202608101628"></script>
+<script src="config.js?v=202608101654"></script>
+<script src="script.js?v=202608101654"></script>
 </body>
 </html>

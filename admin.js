@@ -744,6 +744,16 @@
     remplirSelectSoirees();
     dessinerSoirees();
     dessinerAnnonces();
+
+    /* Le bandeau du haut suffisait à peu — une fois le formulaire ouvert,
+       personne ne le regarde plus. On le redit sur le geste décisif : le
+       bouton qu'on presse pour « publier ». Cause identifiée : quelqu'un
+       a testé « Publier une annonce » ici en la croyant réelle — elle
+       n'a jamais atteint la base, donc jamais atteint le site. */
+    ['form-soiree', 'form-annonce'].forEach(id => {
+      const bouton = document.querySelector(`#${id} button[type="submit"]`);
+      if (bouton) bouton.textContent += ' (démonstration)';
+    });
   };
 
   /* ── Démarrage : on reprend la session si elle est encore valable ── */
