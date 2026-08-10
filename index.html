@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=202608101459">
+<link rel="stylesheet" href="styles.css?v=202608101628">
 
 <script type="application/ld+json">
 {
@@ -66,6 +66,12 @@
 </header>
 
 <main id="contenu">
+
+  <!-- ────────── ANNONCES ──────────
+       Rempli par script.js (table hush_hush_notices) quand une annonce
+       sans soirée précise est active — ex. fermeture exceptionnelle.
+       Les annonces liées à UNE soirée s'affichent sur sa carte, pas ici. -->
+  <div id="avis-site" aria-live="polite"></div>
 
   <!-- ────────── HERO ────────── -->
   <section class="hero" id="top">
@@ -124,41 +130,12 @@
         <h2>Les <em>soirées</em></h2>
       </div>
 
-      <ul class="agenda" id="agenda">
-        <li class="event reveal" data-date="2026-07-31" data-slug="pascal-kleiman" data-label="Pascal Kleiman — ven. 31 juillet">
-          <figure class="event__poster">
-            <img src="assets/affiche-pascal-kleiman.jpg" alt="Affiche : Pascal Kleiman au Hush Hush, vendredi 31 juillet, 22h à 2h" width="1100" height="1467" loading="lazy">
-          </figure>
-          <div class="event__body">
-            <p class="event__meta"><span class="event__kind">Music</span><span class="event__when"><time datetime="2026-07-31">Ven. 31 juillet</time> · 22<i>h</i> → 02<i>h</i></span></p>
-            <h3>Pascal Kleiman</h3>
-            <p class="event__line">DJ set sur le rooftop</p>
-            <button class="event__cta" type="button" data-guestlist>Guestlist</button>
-          </div>
-        </li>
-
-        <li class="event reveal" data-date="2026-08-01" data-slug="ekiz-fasol" data-label="Ekiz &amp; Fasol — sam. 1er août">
-          <figure class="event__poster">
-            <img src="assets/affiche-ekiz-fasol.jpg" alt="Affiche : Ekiz &amp; Fasol au Hush Hush, samedi 1er août, 22h à 3h" width="1100" height="1467" loading="lazy">
-          </figure>
-          <div class="event__body">
-            <p class="event__meta"><span class="event__kind">Club</span><span class="event__when"><time datetime="2026-08-01">Sam. 1<sup>er</sup> août</time> · 22<i>h</i> → 03<i>h</i></span></p>
-            <h3>Ekiz <span class="amp">&amp;</span> Fasol</h3>
-            <p class="event__line">DJ set sur la terrasse — guestlist only à partir de 22h</p>
-            <button class="event__cta" type="button" data-guestlist>Guestlist</button>
-          </div>
-        </li>
-
-        <li class="event reveal" data-date="2026-08-02" data-slug="ahla-leila" data-label="Ahla Leila — dim. 2 août">
-          <figure class="event__poster">
-            <img src="assets/affiche-ahla-leila.jpg" alt="Affiche : Ahla Leila avec DJ Eez et darbouka par Rodolphe au Hush Hush, dimanche 2 août, 17h à 23h" width="1100" height="1466" loading="lazy">
-          </figure>
-          <div class="event__body">
-            <p class="event__meta"><span class="event__kind">Club</span><span class="event__when"><time datetime="2026-08-02">Dim. 2 août</time> · 17<i>h</i> → 23<i>h</i></span></p>
-            <h3>Ahla Leila</h3>
-            <p class="event__line">DJ Eez &amp; darbouka par Rodolphe</p>
-            <button class="event__cta" type="button" data-guestlist>Guestlist</button>
-          </div>
+      <!-- Rempli par script.js depuis Supabase (table hush_hush_events) :
+           plus aucune soirée en dur ici. Ajouter une date se fait
+           désormais depuis la console, sans toucher au code. -->
+      <ul class="agenda" id="agenda" aria-live="polite">
+        <li class="agenda__chargement" id="agenda-chargement" aria-hidden="true">
+          <span></span><span></span><span></span>
         </li>
       </ul>
 
@@ -316,7 +293,7 @@
   </div>
 </footer>
 
-<script src="config.js?v=202608101459"></script>
-<script src="script.js?v=202608101459"></script>
+<script src="config.js?v=202608101628"></script>
+<script src="script.js?v=202608101628"></script>
 </body>
 </html>

@@ -45,18 +45,105 @@
     if (e.key === 'Escape') closeMenu();
   });
 
+  /* ── Petits utilitaires texte ── */
+  const echapper = v => String(v ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+                'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+  // "2026-08-01" → "Sam. 1<sup>er</sup> août"
+  const dateLisible = iso => {
+    const d = new Date(iso + 'T00:00:00');
+    const jour = JOURS[d.getDay()];
+    const num = d.getDate();
+    return `${jour.charAt(0).toUpperCase()}${jour.slice(1)} ` +
+      `${num === 1 ? '1<sup>er</sup>' : num} ${MOIS[d.getMonth()]}`;
+  };
+
+  // "22:00:00" → "22h" · "02:30:00" → "02h30"
+  // (le zéro initial de l'heure vient déjà formaté par Postgres, on le garde :
+  // « 02h » se lit mieux que « 2h » sur une affiche de soirée)
+  const heureLisible = t => {
+    if (!t) return '';
+    const [h, m] = t.split(':');
+    return m === '00' ? `${h}h` : `${h}h${m}`;
+  };
+
+  /* ── Apparition des blocs au scroll ──
+     Fonction réutilisable : les cartes de soirée arrivent après coup
+     (fetch réseau), donc on la rappelle sur ce nouveau lot une fois
+     injecté — sinon elles resteraient invisibles pour toujours,
+     l'observateur initial étant passé avant leur existence.        */
+  const activerReveal = elements => {
+    if (!elements.length) return;
+
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+      elements.forEach(el => el.classList.add('is-in'));
+      return;
+    }
+
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const fratrie = [...entry.target.parentElement.querySelectorAll('.reveal')];
+        entry.target.style.transitionDelay = `${Math.min(fratrie.indexOf(entry.target), 4) * 90}ms`;
+        entry.target.classList.add('is-in');
+        obs.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+
+    elements.forEach(el => {
+      if (el.getBoundingClientRect().top < innerHeight) el.classList.add('is-in');
+      else io.observe(el);
+    });
+  };
+
+  activerReveal([...document.querySelectorAll('.reveal')]);
+
   /* ── Programmation ──
-     Chaque <li> porte sa date en data-date. On grise ce qui est passé et on
-     remonte la prochaine soirée en tête. Pour ajouter une date : copier un
-     bloc .event dans index.html, il n'y a rien à toucher ici.         */
+     Les soirées et les annonces viennent de Supabase (tables
+     hush_hush_events / hush_hush_notices, lecture publique). Ajouter
+     une date ou publier une annonce se fait depuis la console
+     (admin.html) — ce fichier n'a plus rien de codé en dur.        */
   const agenda = document.getElementById('agenda');
   const noteAgenda = document.getElementById('agenda-note');
+  const avisSite = document.getElementById('avis-site');
 
-  if (agenda) {
+  const carteEvenement = (ev, avis) => {
+    const titreHtml = echapper(ev.titre).replace(/ &amp; /g, ' <span class="amp">&amp;</span> ');
+    const quand = `${dateLisible(ev.event_date)} · ${heureLisible(ev.heure_debut)}` +
+      (ev.heure_fin ? ` → ${heureLisible(ev.heure_fin)}` : '');
+
+    const li = document.createElement('li');
+    li.className = 'event reveal';
+    li.dataset.date = ev.event_date;
+    li.dataset.slug = ev.slug;
+    // le libellé sert de repère lisible dans la console et l'export CSV
+    li.dataset.label = `${ev.titre} — ${dateLisible(ev.event_date).replace(/<[^>]+>/g, '')}`;
+
+    li.innerHTML = `
+      ${ev.affiche_url ? `
+        <figure class="event__poster">
+          <img src="${echapper(ev.affiche_url)}" alt="Affiche : ${echapper(ev.titre)} au Hush Hush, ${quand.replace(/<[^>]+>/g, '')}" loading="lazy">
+        </figure>` : `
+        <div class="event__poster event__poster--vide" aria-hidden="true"></div>`}
+      <div class="event__body">
+        <p class="event__meta"><span class="event__kind">${echapper(ev.genre)}</span><span class="event__when">${quand}</span></p>
+        <h3>${titreHtml}</h3>
+        ${ev.description ? `<p class="event__line">${echapper(ev.description)}</p>` : ''}
+        ${avis ? `<p class="event__avis event__avis--${echapper(avis.type)}">${echapper(avis.message)}</p>` : ''}
+        <button class="event__cta" type="button" data-guestlist>Guestlist</button>
+      </div>`;
+    return li;
+  };
+
+  const appliquerLogiqueDates = elements => {
     const aujourdhui = new Date();
     aujourdhui.setHours(0, 0, 0, 0);
 
-    const soirees = [...agenda.querySelectorAll('.event')]
+    const soirees = elements
       .map(el => ({ el, date: new Date(el.dataset.date + 'T00:00:00') }))
       .sort((a, b) => a.date - b.date);
 
@@ -79,30 +166,61 @@
     }
     // S'il n'y a aucune date à venir, on ne dit rien : la grille reste une
     // vitrine et garde sa note par défaut, plutôt que d'afficher « périmé ».
-  }
+  };
 
-  /* ── Apparition des blocs au scroll ── */
-  const items = document.querySelectorAll('.reveal');
+  const dessinerAvisSite = notices => {
+    if (!avisSite) return;
+    // seules les annonces sans soirée précise s'affichent ici ; les
+    // autres se posent sur la carte de la soirée concernée
+    const globales = notices.filter(n => !n.event_slug);
+    avisSite.innerHTML = globales.map(n => `
+      <div class="avis avis--${echapper(n.type)}">
+        <p>${echapper(n.message)}</p>
+      </div>`).join('');
+  };
 
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        // léger décalage entre voisins pour un effet en cascade
-        const siblings = [...entry.target.parentElement.querySelectorAll('.reveal')];
-        entry.target.style.transitionDelay = `${Math.min(siblings.indexOf(entry.target), 4) * 90}ms`;
-        entry.target.classList.add('is-in');
-        obs.unobserve(entry.target);
-      });
-    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+  if (agenda) {
+    (async () => {
+      const chargement = document.getElementById('agenda-chargement');
 
-    items.forEach(el => {
-      // ce qui est déjà à l'écran au chargement s'affiche sans attendre
-      if (el.getBoundingClientRect().top < innerHeight) el.classList.add('is-in');
-      else io.observe(el);
-    });
-  } else {
-    items.forEach(el => el.classList.add('is-in'));
+      try {
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error('config manquante');
+
+        const entetes = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
+        const [reponseEvenements, reponseAvis] = await Promise.all([
+          fetch(`${SUPABASE_URL}/rest/v1/hush_hush_events?select=*&actif=eq.true&order=event_date.asc`, { headers: entetes }),
+          fetch(`${SUPABASE_URL}/rest/v1/hush_hush_notices?select=*&actif=eq.true`, { headers: entetes }),
+        ]);
+
+        if (!reponseEvenements.ok) throw new Error(`événements : HTTP ${reponseEvenements.status}`);
+        const evenements = await reponseEvenements.json();
+        const notices = reponseAvis.ok ? await reponseAvis.json() : [];
+
+        // une soirée = au plus une annonce affichée (la plus récente)
+        const avisParSoiree = new Map();
+        notices
+          .filter(n => n.event_slug)
+          .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+          .forEach(n => avisParSoiree.set(n.event_slug, n));
+
+        chargement?.remove();
+
+        if (!evenements.length) {
+          agenda.innerHTML = '<li class="agenda__vide">Aucune date annoncée pour le moment — suivez Instagram.</li>';
+          return;
+        }
+
+        const cartes = evenements.map(ev => carteEvenement(ev, avisParSoiree.get(ev.slug)));
+        cartes.forEach(c => agenda.appendChild(c));
+
+        appliquerLogiqueDates(cartes);
+        activerReveal(cartes);
+        dessinerAvisSite(notices);
+      } catch (err) {
+        chargement?.remove();
+        agenda.innerHTML = '<li class="agenda__vide">Impossible de charger la programmation. Réessayez, ou consultez Instagram.</li>';
+      }
+    })();
   }
 
   /* ── Fenêtre d'inscription ──

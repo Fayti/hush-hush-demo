@@ -82,27 +82,53 @@ Le jour où le site basculera sur l'organisation « Hush Hush » :
 
 ## Ajouter une soirée
 
-Copier un bloc `<li class="event">` dans `index.html` et renseigner :
+Depuis la console, plus besoin de toucher au code :
 
-- `data-date` au format `AAAA-MM-JJ`
-- `data-slug` — identifiant court, sans espace ni accent
-- `data-label` — ce qui apparaîtra dans la console et l'export
+**Soirées → Ajouter une soirée** → titre, date, heure de début (et de fin,
+facultative), genre (Club / Music...), une ligne de description, une affiche
+si vous en avez une. **Publier** — la soirée apparaît sur le site dans la
+minute, avec sa propre page de guestlist.
 
-Le reste est automatique : la prochaine date remonte en tête avec le badge
-« Prochaine soirée », les dates passées se grisent, et le bouton Guestlist de la
-carte ouvre la fenêtre avec la bonne soirée déjà chargée.
+Sans affiche, la carte s'affiche quand même — un fond de marque à la place de
+l'image, jamais un vide. L'affiche peut être ajoutée plus tard : supprimer la
+soirée et la recréer avec le fichier.
+
+La prochaine date remonte automatiquement en tête avec le badge « Prochaine
+soirée », les dates passées se grisent — rien à faire de plus.
+
+Pour corriger une erreur (mauvaise date, doublon...) : la croix en bout de
+ligne retire la soirée. C'est définitif, pas de modification en place — on
+la recrée si besoin.
+
+---
+
+## Publier une annonce (annulation, changement d'horaire...)
+
+**Annonces → Publier une annonce** → un type (Info / Changement / Annulation),
+un message, et à qui ça s'adresse :
+
+- **une soirée précise** → le message s'affiche sur sa carte, sous la
+  description
+- **« Tout le site »** → un bandeau en haut de toutes les pages (fermeture
+  exceptionnelle, par exemple)
+
+La croix retire l'annonce du site immédiatement.
 
 ---
 
 ## Ce que fait la console
 
-- les chiffres du soir : demandes, personnes attendues, déjà entrées
-- la répartition par soirée
-- **le pointage à l'entrée** : on coche au fur et à mesure, la ligne s'estompe ;
-  le filtre « Reste à faire entrer » ne garde que ceux qu'on attend encore
+- **Soirées** — ajouter, voir la liste, supprimer
+- **Annonces** — publier, voir la liste, retirer
+- les chiffres du soir : inscriptions, personnes sur la liste, plus gros groupe
+- la répartition par soirée (qui remplit le plus)
 - recherche par nom ou contact, filtre par soirée
 - export CSV (lisible dans Excel, accents compris)
-- suppression d'une demande
+- suppression d'une inscription (erreur, doublon)
+
+Tout le monde qui s'inscrit à la guestlist est **admis d'office** — il n'y a
+rien à valider ni à pointer à l'entrée ; c'est un choix assumé, pas une
+fonctionnalité qui manque.
 
 La session se renouvelle toute seule : pas de déconnexion en pleine soirée.
 
@@ -123,14 +149,21 @@ delete from public.hush_hush_guestlist where message = 'DEMO';
 ## Sécurité
 
 Le site est statique : il n'embarque que la clé **anon**, publique par nature.
-Ce qui protège les données, c'est la RLS de Supabase :
+Ce qui protège les données, c'est la RLS de Supabase — trois niveaux, pas un
+seul :
 
-- n'importe qui peut **déposer** une demande de guestlist
-- **personne** ne peut en relire une sans être un admin déclaré
-- pointer une arrivée ou supprimer demande aussi d'être admin
+- **guestlist** (noms, téléphones) — n'importe qui peut déposer une
+  inscription ; **personne** ne peut en relire une sans être admin déclaré
+- **soirées & annonces** — lecture publique assumée (c'est le contenu du
+  site), mais écrire, modifier ou supprimer demande d'être admin
+- **affiches** (Storage) — lues par tous, mais seul un admin peut en
+  téléverser une, et uniquement dans `event-posters/` — jamais le reste du
+  bucket, qui ne passe que par le déploiement du site
 
-Vérifié : une lecture anonyme de la table renvoie une liste vide, même juste
-après avoir inséré une ligne.
+Vérifié à chaque fois en conditions réelles : lecture anonyme vide sur la
+guestlist, écriture refusée sur les trois tables pour un visiteur non-admin
+(y compris un compte anonyme authentifié, comme en crée Cotéa sur ce même
+projet), écriture confirmée pour un admin déclaré.
 
 ---
 
@@ -139,4 +172,4 @@ après avoir inséré une ligne.
 - **les horaires** en section Infos viennent d'articles de presse qui se
   contredisent légèrement
 - les trois affiches en ligne sont des dates **passées** (31 juillet → 2 août) ;
-  les remplacer par les dates à venir
+  les remplacer par les prochaines depuis **Soirées → Ajouter une soirée**

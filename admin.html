@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=202608101459">
-<link rel="stylesheet" href="admin.css?v=202608101459">
+<link rel="stylesheet" href="styles.css?v=202608101628">
+<link rel="stylesheet" href="admin.css?v=202608101628">
 </head>
 <body class="admin">
 
@@ -76,6 +76,116 @@
     <!-- chiffres d'appui -->
     <section class="stats" id="stats" aria-label="Chiffres clés"></section>
 
+    <!-- ────────── Soirées ──────────
+         Ajouter une date se fait ici — plus besoin de toucher au code.
+         Ce qui est ajouté apparaît sur le site dans la minute. -->
+    <section class="bloc">
+      <div class="bloc__tete">
+        <h2>Soirées</h2>
+        <button class="btn btn--ghost btn--sm" type="button" id="toggle-form-soiree">
+          Ajouter une soirée
+        </button>
+      </div>
+
+      <form class="panneau" id="form-soiree" hidden novalidate>
+        <div class="panneau__grille">
+          <div class="field">
+            <label for="ev-titre">Titre</label>
+            <input type="text" id="ev-titre" name="titre" required placeholder="Ekiz & Fasol">
+          </div>
+
+          <div class="field">
+            <label for="ev-genre">Genre <span class="opt">(badge affiché)</span></label>
+            <input type="text" id="ev-genre" name="genre" list="genres-suggestions" placeholder="Club" value="Club">
+            <datalist id="genres-suggestions">
+              <option value="Club"></option>
+              <option value="Music"></option>
+              <option value="Soirée"></option>
+            </datalist>
+          </div>
+
+          <div class="field">
+            <label for="ev-date">Date</label>
+            <input type="date" id="ev-date" name="date" required>
+          </div>
+
+          <div class="field">
+            <label for="ev-debut">Heure de début</label>
+            <input type="time" id="ev-debut" name="debut" required value="22:00">
+          </div>
+
+          <div class="field">
+            <label for="ev-fin">Heure de fin <span class="opt">(facultatif)</span></label>
+            <input type="time" id="ev-fin" name="fin">
+          </div>
+
+          <div class="field">
+            <label for="ev-affiche">Affiche <span class="opt">(facultatif)</span></label>
+            <input type="file" id="ev-affiche" name="affiche" accept="image/*">
+          </div>
+
+          <div class="field field--large">
+            <label for="ev-description">Description <span class="opt">(facultatif)</span></label>
+            <input type="text" id="ev-description" name="description" placeholder="DJ set sur la terrasse">
+          </div>
+        </div>
+
+        <div class="panneau__actions">
+          <button class="btn" type="submit">Publier la soirée</button>
+          <button class="btn btn--ghost" type="button" id="annuler-soiree">Annuler</button>
+        </div>
+        <p class="form__status" id="soiree-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="liste-soirees" id="liste-soirees"></div>
+    </section>
+
+    <!-- ────────── Annonces ──────────
+         Annulation, changement d'horaire… Sans soirée précisée,
+         l'annonce s'affiche en haut de toutes les pages du site. -->
+    <section class="bloc">
+      <div class="bloc__tete">
+        <h2>Annonces</h2>
+        <button class="btn btn--ghost btn--sm" type="button" id="toggle-form-annonce">
+          Publier une annonce
+        </button>
+      </div>
+
+      <form class="panneau" id="form-annonce" hidden novalidate>
+        <div class="panneau__grille">
+          <div class="field">
+            <label for="av-type">Type</label>
+            <select id="av-type" name="type">
+              <option value="info">Info</option>
+              <option value="changement">Changement</option>
+              <option value="annulation">Annulation</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="av-soiree">Concerne</label>
+            <select id="av-soiree" name="soiree">
+              <option value="">Tout le site</option>
+            </select>
+          </div>
+
+          <div class="field field--large">
+            <label for="av-message">Message</label>
+            <input type="text" id="av-message" name="message" required maxlength="300"
+                   placeholder="La soirée du 15 août est annulée.">
+          </div>
+        </div>
+
+        <div class="panneau__actions">
+          <button class="btn" type="submit">Publier</button>
+          <button class="btn btn--ghost" type="button" id="annuler-annonce">Annuler</button>
+        </div>
+        <p class="form__status" id="annonce-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="liste-annonces" id="liste-annonces"></div>
+    </section>
+
     <!-- répartition par soirée -->
     <section class="bloc">
       <div class="bloc__tete">
@@ -120,8 +230,8 @@
   </main>
 </div>
 
-<script src="config.js?v=202608101459"></script>
-<script src="admin.js?v=202608101459"></script>
+<script src="config.js?v=202608101628"></script>
+<script src="admin.js?v=202608101628"></script>
 
 <!-- ────────── GARDE-FOU ──────────
      Ce script est écrit DANS la page : si le HTML s'affiche, il tourne,

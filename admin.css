@@ -409,3 +409,164 @@
 @media (max-width: 460px) {
   .bloc__outils { grid-template-columns: 1fr; }
 }
+
+/* ─────────── Formulaires : soirées & annonces ───────────
+   Repliés par défaut (bouton « Ajouter »/« Publier ») : la console
+   reste courte tant qu'on ne publie rien, et la liste passe en premier. */
+
+.panneau {
+  padding: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--ligne);
+  border-radius: 6px;
+  background: var(--brun-fonce);
+}
+
+.panneau__grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1.1rem;
+  margin-bottom: 1.4rem;
+}
+.field--large { grid-column: 1 / -1; }
+
+.panneau__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  align-items: center;
+}
+
+.panneau .form__status {
+  flex-basis: 100%;
+  margin: .25rem 0 0;
+  font-size: .85rem;
+  color: var(--or);
+}
+.panneau .form__status.is-error { color: #E8897C; }
+
+/* le sélecteur de fichier natif, mis au même ton que les autres champs */
+input[type="file"] {
+  padding: .55rem .7rem;
+  font-size: .85rem;
+  color: var(--texte-doux);
+}
+input[type="file"]::file-selector-button {
+  margin-right: .75rem;
+  padding: .5rem 1rem;
+  border: 1px solid var(--ligne);
+  border-radius: 100px;
+  background: rgba(248, 232, 212, .06);
+  color: var(--creme);
+  font-family: var(--sans);
+  font-size: .78rem;
+  cursor: pointer;
+  transition: background .2s var(--ease), border-color .2s var(--ease);
+}
+input[type="file"]::file-selector-button:hover {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: var(--noir);
+}
+
+/* ─────────── Liste des soirées ─────────── */
+
+.liste-soirees { display: grid; gap: .5rem; }
+
+.soiree-item {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .9rem;
+  padding: .7rem .9rem;
+  border: 1px solid var(--ligne);
+  border-radius: 5px;
+  background: var(--brun-fonce);
+  transition: border-color .2s var(--ease);
+}
+.soiree-item:hover { border-color: rgba(248, 232, 212, .28); }
+
+.soiree-item__vignette {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 4px;
+  background-color: rgba(240, 121, 12, .14);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.soiree-item__texte {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  min-width: 0;
+}
+.soiree-item__texte b {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--creme);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.soiree-item__texte span {
+  font-size: .76rem;
+  color: var(--texte-doux);
+}
+
+/* ─────────── Liste des annonces ─────────── */
+
+.liste-annonces { display: grid; gap: .5rem; }
+
+.annonce-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .9rem;
+  padding: .7rem .9rem;
+  border: 1px solid var(--ligne);
+  border-left: 3px solid var(--ligne);
+  border-radius: 5px;
+  background: var(--brun-fonce);
+}
+.annonce-item--annulation { border-left-color: #C4574B; }
+.annonce-item--changement { border-left-color: var(--orange); }
+.annonce-item--info       { border-left-color: rgba(248, 232, 212, .35); }
+
+.annonce-item__badge {
+  padding: .25rem .65rem;
+  border-radius: 100px;
+  font-size: .62rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.annonce-item--annulation .annonce-item__badge { background: rgba(196, 87, 75, .18); color: #F0A79C; }
+.annonce-item--changement .annonce-item__badge { background: rgba(240, 121, 12, .18); color: var(--orange-vif); }
+.annonce-item--info       .annonce-item__badge { background: rgba(248, 232, 212, .08); color: var(--texte-doux); }
+
+.annonce-item__texte {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  min-width: 0;
+}
+.annonce-item__texte b {
+  font-weight: 400;
+  font-size: .92rem;
+  color: var(--creme);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.annonce-item__texte span {
+  font-size: .74rem;
+  color: var(--texte-doux);
+}
+
+@media (max-width: 560px) {
+  .soiree-item, .annonce-item { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .soiree-item__texte b, .annonce-item__texte b { white-space: normal; }
+}

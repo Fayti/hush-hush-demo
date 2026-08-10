@@ -265,6 +265,32 @@ h3 {
 .burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(3px) rotate(45deg); }
 .burger[aria-expanded="true"] span:nth-child(2) { transform: translateY(-3px) rotate(-45deg); }
 
+/* ─────────── Annonce (bandeau de tout le site) ───────────
+   Publiée depuis la console : fermeture exceptionnelle, changement
+   qui concerne toute la soirée plutôt qu'une seule date. Invisible
+   tant qu'aucune annonce n'est active — :empty évite tout espace
+   réservé pour rien. */
+
+#avis-site:empty { display: none; }
+
+#avis-site {
+  position: relative;
+  z-index: 5;              /* sous la nav (900), au-dessus du hero */
+  padding-top: 4.75rem;    /* dégage la hauteur de la nav, fixe au-dessus */
+}
+
+.avis {
+  padding: .8rem var(--pad);
+  text-align: center;
+  font-size: .85rem;
+  line-height: 1.6;
+  border-bottom: 1px solid var(--ligne);
+}
+.avis p { margin: 0; max-width: 60ch; margin-inline: auto; }
+.avis--annulation { background: rgba(196, 87, 75, .16);  color: #F0A79C;      border-bottom-color: rgba(196, 87, 75, .35); }
+.avis--changement { background: rgba(240, 121, 12, .14); color: var(--creme); border-bottom-color: rgba(240, 121, 12, .35); }
+.avis--info       { background: rgba(248, 232, 212, .06); color: var(--creme-doux); }
+
 /* ─────────── Hero ─────────── */
 
 .hero {
@@ -498,6 +524,38 @@ h3 {
   gap: clamp(2rem, 4vw, 3rem);
 }
 
+/* le temps que la programmation arrive de Supabase */
+.agenda__chargement {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: .5rem;
+  padding: 3rem 0;
+}
+.agenda__chargement span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--orange);
+  animation: pulseChargement 1.1s ease-in-out infinite;
+}
+.agenda__chargement span:nth-child(2) { animation-delay: .15s; }
+.agenda__chargement span:nth-child(3) { animation-delay: .3s; }
+@keyframes pulseChargement {
+  0%, 80%, 100% { opacity: .25; transform: scale(.8); }
+  40%           { opacity: 1;   transform: scale(1.15); }
+}
+
+/* aucune date, ou la requête a échoué : jamais une grille juste vide */
+.agenda__vide {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2.75rem 1.5rem;
+  color: var(--texte-doux);
+  font-size: .95rem;
+  border: 1px dashed var(--ligne);
+  border-radius: var(--r);
+}
+
 .event {
   display: flex;
   flex-direction: column;
@@ -523,6 +581,20 @@ h3 {
   border: 1px solid rgba(248, 232, 212, .16);
   border-radius: var(--r);
   pointer-events: none;
+}
+
+/* soirée ajoutée sans affiche : un fond de marque plutôt qu'un vide.
+   Même proportion que les affiches (1100×1467) pour que la grille
+   garde sa ligne, avec ou sans image sur une carte donnée. */
+.event__poster--vide {
+  margin: 0 0 1.4rem;
+  aspect-ratio: 1100 / 1467;
+  border-radius: var(--r);
+  border: 1px solid rgba(248, 232, 212, .16);
+  background:
+    radial-gradient(120% 90% at 15% 10%, rgba(240, 121, 12, .22) 0%, rgba(240, 121, 12, 0) 60%),
+    radial-gradient(100% 80% at 85% 90%, rgba(233, 162, 75, .16) 0%, rgba(233, 162, 75, 0) 60%),
+    var(--brun-fonce);
 }
 
 /* colonne étirable : c'est ce qui permet au bouton de se caler en bas */
@@ -554,7 +626,6 @@ h3 {
   text-transform: uppercase;
   color: var(--creme);
 }
-.event__when i { font-style: normal; font-size: .7em; vertical-align: .45em; }
 .event__when sup { font-size: .6em; }
 
 .event h3 { margin: 0 0 .6rem; }
@@ -566,6 +637,19 @@ h3 {
   font-size: .95rem;
   line-height: 1.6;
 }
+
+/* annonce posée sur UNE soirée (annulation, changement d'horaire...) —
+   publiée depuis la console, liée à cette soirée précise. */
+.event__avis {
+  margin: 0 0 1.1rem;
+  padding: .6rem .85rem;
+  border-radius: var(--r);
+  font-size: .82rem;
+  line-height: 1.5;
+}
+.event__avis--annulation { background: rgba(196, 87, 75, .14);  color: #F0A79C;      border: 1px solid rgba(196, 87, 75, .3); }
+.event__avis--changement { background: rgba(240, 121, 12, .12); color: var(--creme); border: 1px solid rgba(240, 121, 12, .3); }
+.event__avis--info       { background: rgba(248, 232, 212, .06); color: var(--creme-doux); border: 1px solid var(--ligne); }
 
 /* bouton pleine largeur, aligné en bas de carte quel que soit le texte
    au-dessus : les trois cartes gardent la même ligne de base */
