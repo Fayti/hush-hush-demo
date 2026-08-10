@@ -218,76 +218,68 @@
     const carte = new Map();
     liste.forEach(d => {
       const cle = d.event_label || d.event_slug;
-      const e = carte.get(cle) || { label: cle, inscrits: 0, personnes: 0, arrivees: 0 };
+      const e = carte.get(cle) || { label: cle, inscrits: 0, personnes: 0 };
       e.inscrits += 1;
       e.personnes += d.personnes || 0;
-      if (d.arrive) e.arrivees += d.personnes || 0;
       carte.set(cle, e);
     });
     return [...carte.values()].sort((a, b) => b.personnes - a.personnes);
   };
 
-  /* Chiffres clés : on répond aux questions qu'on se pose à la porte —
-     combien j'attends, combien sont entrés, combien il en reste.
-     « Nombre de soirées » n'aidait personne, il saute.            */
+  /* Le chiffre que la soirée regarde en premier — un seul par écran. */
+  const dessinerTete = () => {
+    const zone = $('tete');
+    if (!zone) return;
+
+    const personnes = demandes.reduce((n, d) => n + (d.personnes || 0), 0);
+    const soirees = parSoiree(demandes).length;
+
+    zone.innerHTML = `
+      <p class="tete__label">Sur la liste</p>
+      <p class="tete__chiffre">${personnes}</p>
+      <p class="tete__detail">personne${personnes > 1 ? 's' : ''} attendue${personnes > 1 ? 's' : ''}${
+        soirees ? ` sur ${soirees} soirée${soirees > 1 ? 's' : ''}` : ''
+      }</p>`;
+  };
+
+  /* Chiffres d'appui : ce qu'on veut savoir en plus du total. */
   const dessinerStats = () => {
     const personnes = demandes.reduce((n, d) => n + (d.personnes || 0), 0);
-    const entrees   = demandes.filter(d => d.arrive)
-                              .reduce((n, d) => n + (d.personnes || 0), 0);
-    const restants  = personnes - entrees;
-    const part      = personnes ? Math.round((entrees / personnes) * 100) : 0;
+    const moyenne = demandes.length ? personnes / demandes.length : 0;
+    const plusGros = demandes.reduce((m, d) => Math.max(m, d.personnes || 0), 0);
 
     $('stats').innerHTML = [
       { n: demandes.length, libelle: demandes.length > 1 ? 'inscriptions' : 'inscription' },
-      { n: personnes, libelle: 'personnes sur la liste' },
-      { n: entrees,   libelle: 'déjà arrivées' },
-      { n: restants,  libelle: 'pas encore arrivées', cle: true },
-    ].map(({ n, libelle, cle }) =>
-      `<div class="stat${cle ? ' stat--cle' : ''}"><b>${n}</b><span>${libelle}</span></div>`
+      { n: moyenne ? moyenne.toFixed(1).replace('.', ',') : '—', libelle: 'personnes par groupe' },
+      { n: plusGros || '—', libelle: 'plus gros groupe' },
+    ].map(({ n, libelle }) =>
+      `<div class="stat"><b>${n}</b><span>${libelle}</span></div>`
     ).join('');
-
-    const total = $('total');
-    if (!total) return;
-    total.hidden = personnes === 0;
-    total.innerHTML =
-      `<span class="total__texte"><b>${entrees}</b> arrivées sur <b>${personnes}</b></span>` +
-      `<span class="jauge"><i style="width:${part}%"></i></span>` +
-      `<span class="total__texte"><b>${part}&nbsp;%</b></span>`;
   };
 
-  /* Une ligne par soirée, chacune répondant à « c'est rempli à combien ? ».
-     La jauge mesure les entrées sur l'attendu — pas la taille relative des
-     soirées entre elles, qui ne dit rien d'utile.                   */
+  /* Comparaison entre soirées : laquelle attire le plus.
+     Une seule teinte, barres classées, valeur au bout de chaque barre. */
   const dessinerParSoiree = () => {
     const groupes = parSoiree(demandes);
+    const max = Math.max(1, ...groupes.map(g => g.personnes));
 
     $('parsoiree').innerHTML = groupes.length
-      ? groupes.map(g => {
-          const part = g.personnes ? Math.round((g.arrivees / g.personnes) * 100) : 0;
-          return `
-          <div class="soiree-ligne">
-            <span class="soiree-ligne__nom">${echapper(g.label)}</span>
-            <span class="soiree-ligne__ratio">
-              <b>${g.arrivees}</b> / ${g.personnes} arrivées · <em>${part}&nbsp;%</em>
-            </span>
-            <span class="jauge"><i style="width:${part}%"></i></span>
-            <span class="soiree-ligne__pied">
-              ${g.inscrits} inscription${g.inscrits > 1 ? 's' : ''} ·
-              ${g.personnes - g.arrivees} pas encore arrivée${g.personnes - g.arrivees > 1 ? 's' : ''}
-            </span>
-          </div>`;
-        }).join('')
+      ? groupes.map(g => `
+          <div class="barre">
+            <span class="barre__nom">${echapper(g.label)}</span>
+            <span class="barre__meta">${g.inscrits} inscription${g.inscrits > 1 ? 's' : ''}</span>
+            <span class="barre__piste"><i style="width:${(g.personnes / max) * 100}%"></i></span>
+            <span class="barre__valeur">${g.personnes}</span>
+          </div>`).join('')
       : '<p class="vide">Rien à afficher pour l’instant.</p>';
   };
 
   const listeFiltree = () => {
     const soiree = $('filtre-soiree')?.value || '';
     const q = ($('recherche')?.value || '').trim().toLowerCase();
-    const restants = $('filtre-restants')?.checked || false;
 
     return demandes.filter(d => {
       if (soiree && d.event_slug !== soiree) return false;
-      if (restants && d.arrive) return false;
       if (q && !(`${d.nom} ${d.contact}`.toLowerCase().includes(q))) return false;
       return true;
     });
@@ -298,25 +290,19 @@
     $('vide').hidden = liste.length > 0;
 
     $('tableau-corps').innerHTML = liste.map(d => `
-      <tr data-id="${d.id}" class="${d.arrive ? 'est-arrive' : ''}">
-        <td class="col-arrive">
-          <label class="pointage">
-            <input type="checkbox" data-arrive="${d.id}" ${d.arrive ? 'checked' : ''}
-                   aria-label="Marquer ${echapper(d.nom)} comme arrivé à l’entrée">
-            <span aria-hidden="true"></span>
-          </label>
-        </td>
+      <tr data-id="${d.id}">
         <td class="col-nom">${echapper(d.nom)}</td>
         <td class="col-contact">${lienContact(d.contact)}</td>
         <td class="col-pers">${d.personnes}</td>
         <td class="col-soiree">${echapper(d.event_label || d.event_slug)}</td>
         <td class="col-date">${dateCourte(d.created_at)}</td>
         <td><button class="supprimer" type="button" data-supprimer="${d.id}"
-              aria-label="Supprimer la demande de ${echapper(d.nom)}">&times;</button></td>
+              aria-label="Retirer ${echapper(d.nom)} de la liste">&times;</button></td>
       </tr>`).join('');
   };
 
   const dessiner = () => {
+    dessinerTete();
     dessinerStats();
     dessinerParSoiree();
     dessinerTableau();
@@ -336,42 +322,6 @@
 
   ecouter('filtre-soiree', 'change', dessinerTableau);
   ecouter('recherche', 'input', dessinerTableau);
-  ecouter('filtre-restants', 'change', dessinerTableau);
-
-  /* ── Pointage à l'entrée ──
-     On coche tout de suite à l'écran, on écrit ensuite : à la porte,
-     l'affichage doit répondre au doigt, pas au réseau. En cas d'échec
-     on revient en arrière et on le dit.                              */
-
-  ecouter('tableau-corps', 'change', async e => {
-    const case_ = e.target.closest('[data-arrive]');
-    if (!case_) return;
-
-    const id = case_.dataset.arrive;
-    const demande = demandes.find(d => d.id === id);
-    if (!demande) return;
-
-    const avant = demande.arrive;
-    demande.arrive = case_.checked;
-    case_.closest('tr')?.classList.toggle('est-arrive', case_.checked);
-    dessinerStats();
-    dessinerParSoiree();
-
-    const reponse = await api(`/rest/v1/hush_hush_guestlist?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: { Prefer: 'return=minimal' },
-      body: JSON.stringify({ arrive: demande.arrive }),
-    });
-
-    if (!reponse || !reponse.ok) {
-      demande.arrive = avant;
-      case_.checked = avant;
-      case_.closest('tr')?.classList.toggle('est-arrive', avant);
-      dessinerStats();
-      dessinerParSoiree();
-      alert('Le pointage n’a pas été enregistré. Vérifiez la connexion.');
-    }
-  });
 
   /* ── Suppression ── */
 
@@ -404,11 +354,10 @@
 
     const cellule = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const lignes = [
-      ['Nom', 'Contact', 'Personnes', 'Soirée', 'Arrivé', 'Message', 'Inscrit le'],
+      ['Nom', 'Contact', 'Personnes', 'Soirée', 'Message', 'Inscrit le'],
       ...liste.map(d => [
         d.nom, d.contact, d.personnes,
         d.event_label || d.event_slug,
-        d.arrive ? 'oui' : 'non',
         d.message || '',
         new Date(d.created_at).toLocaleString('fr-FR'),
       ]),
@@ -470,21 +419,21 @@
      possible : rien n'est branché sur Supabase dans ce mode.          */
 
   const DEMO = [
-    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Camille Ferrand', '06 51 22 44 98',       4, true],
-    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Yanis Belkacem',  'yanis.b@gmail.com',    2, true],
-    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Léa Marchetti',   '07 83 01 55 62',       6, false],
-    ['ahla-leila',     'Ahla Leila — dim. 2 août',        'Sofia Haddad',    'sofia.haddad@me.com',  3, false],
-    ['ahla-leila',     'Ahla Leila — dim. 2 août',        'Thomas Vidal',    '06 29 88 74 10',       2, false],
-    ['pascal-kleiman', 'Pascal Kleiman — ven. 31 juillet','Nour Benali',     '07 44 12 03 96',       5, true],
-    ['pascal-kleiman', 'Pascal Kleiman — ven. 31 juillet','Mathis Roussel',  'mathis.roussel@pm.me', 2, false],
+    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Camille Ferrand', '06 51 22 44 98',       4],
+    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Yanis Belkacem',  'yanis.b@gmail.com',    2],
+    ['ekiz-fasol',     'Ekiz & Fasol — sam. 1ᵉʳ août',    'Léa Marchetti',   '07 83 01 55 62',       6],
+    ['ahla-leila',     'Ahla Leila — dim. 2 août',        'Sofia Haddad',    'sofia.haddad@me.com',  3],
+    ['ahla-leila',     'Ahla Leila — dim. 2 août',        'Thomas Vidal',    '06 29 88 74 10',       2],
+    ['pascal-kleiman', 'Pascal Kleiman — ven. 31 juillet','Nour Benali',     '07 44 12 03 96',       5],
+    ['pascal-kleiman', 'Pascal Kleiman — ven. 31 juillet','Mathis Roussel',  'mathis.roussel@pm.me', 2],
   ];
 
   const lancerDemo = () => {
     session = { email: 'démonstration' };
-    demandes = DEMO.map(([slug, label, nom, contact, personnes, arrive], i) => ({
+    demandes = DEMO.map(([slug, label, nom, contact, personnes], i) => ({
       id: `demo-${i}`,
       event_slug: slug, event_label: label,
-      nom, contact, personnes, arrive, message: null,
+      nom, contact, personnes, message: null,
       created_at: new Date(Date.now() - (i + 1) * 8 * 3600 * 1000).toISOString(),
     }));
 
@@ -493,13 +442,6 @@
     remplirFiltre();
     dessiner();
 
-    // le pointage reste manipulable, mais purement à l'écran
-    ecouter('tableau-corps', 'change', e => {
-      const c = e.target.closest('[data-arrive]');
-      if (!c) return;
-      const d = demandes.find(x => x.id === c.dataset.arrive);
-      if (d) { d.arrive = c.checked; dessinerStats(); dessinerParSoiree(); }
-    });
   };
 
   /* ── Démarrage : on reprend la session si elle est encore valable ── */

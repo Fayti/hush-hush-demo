@@ -35,7 +35,7 @@
   place-items: center;
   padding: 2rem var(--pad);
   background:
-    radial-gradient(90% 60% at 50% 0%, rgba(240, 121, 12, .2) 0%, rgba(240, 121, 12, 0) 60%),
+    radial-gradient(90% 60% at 50% 0%, rgba(240, 121, 12, .18) 0%, rgba(240, 121, 12, 0) 60%),
     var(--noir);
 }
 
@@ -44,8 +44,9 @@
   text-align: center;
   padding: clamp(2rem, 5vw, 2.75rem);
   border: 1px solid var(--ligne);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--brun-fonce);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .55);
 }
 .connexion__logo { width: 62px; margin: 0 auto 1.4rem; opacity: .9; }
 .connexion__label {
@@ -63,7 +64,28 @@
 }
 .connexion__box .field { text-align: left; margin-bottom: 1.1rem; }
 .connexion__btn { width: 100%; margin-top: .6rem; }
-.connexion .form__status { text-align: center; margin-top: 1rem; }
+.connexion .form__status {
+  text-align: center;
+  margin-top: 1rem;
+  word-break: break-word;
+  line-height: 1.6;
+  user-select: text;
+}
+
+/* panne de chargement : doit se voir immédiatement */
+.panne {
+  margin: 1.25rem 0 0;
+  padding: .85rem 1rem;
+  border: 1px solid #C4574B;
+  border-radius: 4px;
+  background: rgba(196, 87, 75, .12);
+  color: #F0A79C;
+  font-size: .82rem;
+  line-height: 1.6;
+  text-align: left;
+  word-break: break-word;
+  user-select: text;
+}
 
 /* ─────────── Barre du haut ─────────── */
 
@@ -114,125 +136,91 @@
   padding: .85rem 1.15rem;
   border: 1px solid var(--ligne);
   border-left: 2px solid var(--orange);
-  border-radius: 3px;
+  border-radius: 4px;
   background: var(--brun-fonce);
   color: var(--creme-doux);
   font-size: .88rem;
 }
 
-/* le message de connexion peut contenir une requête SQL à recopier */
-.connexion .form__status {
-  word-break: break-word;
-  line-height: 1.6;
-  user-select: text;
+/* ─────────── Le chiffre principal ───────────
+   Un seul par écran, en sans : c'est un outil de travail. Les valeurs
+   portent une couleur de texte, l'orange est réservé aux barres. */
+
+.tete {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.9rem, 4vw, 2.75rem) clamp(1.6rem, 4vw, 2.5rem);
+  border: 1px solid var(--ligne);
+  border-radius: 6px;
+  background:
+    radial-gradient(130% 160% at 0% 0%, rgba(240, 121, 12, .14) 0%, rgba(240, 121, 12, 0) 62%),
+    var(--brun-fonce);
+  margin-bottom: 1rem;
+}
+/* filet fin en haut, discret repère de hiérarchie */
+.tete::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--orange) 0%, rgba(240, 121, 12, 0) 55%);
+}
+.tete__label {
+  margin: 0;
+  font-size: .66rem;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.tete__chiffre {
+  margin: .5rem 0 .15rem;
+  font-family: var(--sans);
+  font-size: clamp(3.4rem, 2.4rem + 4vw, 5rem);
+  font-weight: 600;
+  line-height: .95;
+  letter-spacing: -.03em;
+  color: var(--creme);
+}
+.tete__detail {
+  margin: 0;
+  font-size: .92rem;
+  color: var(--texte-doux);
 }
 
-/* panne de chargement : doit se voir immédiatement */
-.panne {
-  margin: 1.25rem 0 0;
-  padding: .85rem 1rem;
-  border: 1px solid #C4574B;
-  border-radius: 3px;
-  background: rgba(196, 87, 75, .12);
-  color: #F0A79C;
-  font-size: .82rem;
-  line-height: 1.6;
-  text-align: left;
-  word-break: break-word;
-  user-select: text;
-}
-
-/* ─────────── Chiffres clés ───────────
-   Les valeurs portent une couleur de TEXTE, jamais la couleur de donnée :
-   l'orange est réservé aux jauges, sinon il ne veut plus rien dire.
-   Chiffres en sans (pas en serif) : c'est un outil, pas une affiche. */
+/* ─────────── Chiffres d'appui ─────────── */
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
   gap: 1px;
   background: var(--ligne);
   border: 1px solid var(--ligne);
-  border-radius: 3px;
+  border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
 }
 .stat {
   background: var(--brun-fonce);
-  padding: clamp(1.3rem, 3vw, 1.75rem) 1.25rem;
+  padding: clamp(1.15rem, 3vw, 1.5rem) 1.25rem;
+  transition: background .25s var(--ease);
 }
+.stat:hover { background: rgba(240, 121, 12, .05); }
 .stat b {
   display: block;
   font-family: var(--sans);
-  font-size: clamp(2rem, 1.6rem + 1.5vw, 2.6rem);
-  font-weight: 500;
+  font-size: clamp(1.7rem, 1.4rem + 1.1vw, 2.1rem);
+  font-weight: 600;
   line-height: 1;
   letter-spacing: -.02em;
   color: var(--creme);
-  /* chiffres proportionnels : en grand, tabular-nums fait des trous */
 }
 .stat span {
   display: block;
-  margin-top: .55rem;
+  margin-top: .5rem;
   font-size: .7rem;
-  letter-spacing: .1em;
+  letter-spacing: .08em;
   color: var(--texte-doux);
 }
-/* le chiffre qui compte à la porte */
-.stat--cle b { color: var(--orange-vif); }
-
-/* jauge d'ensemble, juste sous les chiffres */
-.total {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: .9rem 1.15rem;
-  border: 1px solid var(--ligne);
-  border-radius: 3px;
-  background: var(--brun-fonce);
-  margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
-}
-.total__texte {
-  font-size: .78rem;
-  letter-spacing: .06em;
-  color: var(--texte-doux);
-  white-space: nowrap;
-}
-.total__texte b { color: var(--creme); font-weight: 500; font-variant-numeric: tabular-nums; }
-.total .jauge { flex: 1; }
-
-/* ─────────── Jauge ───────────
-   Un seul ton : la piste est une version basse de la teinte de
-   remplissage, pour que l'état se lise sur toute la barre. */
-.jauge {
-  height: 6px;
-  border-radius: 4px;
-  background: rgba(240, 121, 12, .16);
-  overflow: hidden;
-}
-.jauge i {
-  display: block;
-  height: 100%;
-  background: var(--orange);
-  border-radius: 0 4px 4px 0; /* arrondi côté donnée, droit à l'origine */
-  transition: width .5s var(--ease);
-}
-.jauge i[style*="width: 100%"] { border-radius: 4px; }
-
-/* explication des chiffres : sans elle, les jauges à zéro passent
-   pour un bug alors que c'est juste que rien n'a été coché */
-.explication {
-  margin: 0 0 clamp(2.5rem, 5vw, 3.5rem);
-  padding: .95rem 1.15rem;
-  border: 1px dashed rgba(248, 232, 212, .2);
-  border-radius: 3px;
-  font-size: .84rem;
-  line-height: 1.7;
-  color: var(--texte-doux);
-  max-width: 78ch;
-}
-.explication strong { color: var(--creme); font-weight: 500; }
-.explication br { content: ""; display: block; margin-top: .5rem; }
 
 /* ─────────── Blocs ─────────── */
 
@@ -263,51 +251,70 @@
   color: var(--creme);
   font-family: var(--sans);
   font-weight: 300;
+  transition: border-color .25s var(--ease), background .25s var(--ease);
 }
 .filtre select { padding-right: 2.4rem; }
 .recherche { min-width: 12rem; }
 .filtre select:focus, .recherche:focus {
   outline: none;
   border-color: var(--orange);
+  background: rgba(248, 232, 212, .08);
 }
 
-/* ─────────── Remplissage par soirée ───────────
-   Chaque ligne répond à une seule question : combien de monde est
-   déjà entré sur le total attendu. */
+/* ─────────── Comparaison entre soirées ───────────
+   Une seule teinte, barres classées de la plus grosse à la plus
+   petite, valeur posée au bout — pas de légende : une seule série. */
 
-.parsoiree { display: grid; gap: .6rem; }
+.parsoiree { display: grid; gap: .55rem; }
 
-.soiree-ligne {
+.barre {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: .55rem 1.25rem;
-  padding: 1rem 1.15rem;
+  align-items: center;
+  gap: .45rem .9rem;
+  padding: .95rem 1.15rem;
   border: 1px solid var(--ligne);
-  border-radius: 3px;
+  border-radius: 5px;
   background: var(--brun-fonce);
+  transition: border-color .25s var(--ease);
 }
-.soiree-ligne__nom {
+.barre:hover { border-color: rgba(248, 232, 212, .28); }
+.barre__nom {
   font-family: var(--serif);
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   color: var(--creme);
   min-width: 0;
 }
-.soiree-ligne__ratio {
-  font-size: .82rem;
-  letter-spacing: .04em;
-  color: var(--texte-doux);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums; /* colonne de chiffres : ils s'alignent */
-}
-.soiree-ligne__ratio b { color: var(--creme); font-weight: 500; }
-.soiree-ligne__ratio em { font-style: normal; color: var(--orange-vif); }
-.soiree-ligne .jauge { grid-column: 1 / -1; }
-.soiree-ligne__pied {
-  grid-column: 1 / -1;
+.barre__meta {
   font-size: .72rem;
-  letter-spacing: .04em;
+  letter-spacing: .06em;
   color: rgba(248, 232, 212, .45);
+  white-space: nowrap;
+}
+.barre__piste {
+  grid-column: 1 / -1;
+  height: 8px;                     /* fine : la donnée, pas le décor */
+  border-radius: 5px;
+  background: rgba(240, 121, 12, .13);
+  overflow: hidden;
+}
+.barre__piste i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #D9670A 0%, var(--orange) 100%);
+  border-radius: 0 5px 5px 0;      /* arrondi côté donnée, droit à l'origine */
+  transition: width .6s var(--ease);
+}
+.barre__valeur {
+  grid-row: 1;
+  grid-column: 2;
+  font-family: var(--sans);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--creme);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
 }
 
 /* ─────────── Tableau ─────────── */
@@ -315,13 +322,13 @@
 .tableau-enveloppe {
   overflow-x: auto;
   border: 1px solid var(--ligne);
-  border-radius: 3px;
+  border-radius: 6px;
 }
 .tableau {
   width: 100%;
   border-collapse: collapse;
   font-size: .9rem;
-  min-width: 44rem;
+  min-width: 40rem;
 }
 .tableau th {
   text-align: left;
@@ -336,100 +343,39 @@
   white-space: nowrap;
 }
 .tableau td {
-  padding: .9rem 1rem;
+  padding: .85rem 1rem;
   border-bottom: 1px solid rgba(248, 232, 212, .07);
   vertical-align: middle;
 }
 .tableau tbody tr:last-child td { border-bottom: 0; }
-.tableau tbody tr:hover { background: rgba(248, 232, 212, .03); }
-.tableau .col-nom { font-family: var(--serif); font-size: 1.1rem; }
+.tableau tbody tr { transition: background .2s var(--ease); }
+.tableau tbody tr:hover { background: rgba(248, 232, 212, .035); }
+.tableau .col-nom { font-family: var(--serif); font-size: 1.1rem; color: var(--creme); }
 .tableau .col-contact a { color: var(--creme-doux); border-bottom: 1px solid var(--ligne); }
 .tableau .col-contact a:hover { border-bottom-color: var(--orange); }
-.tableau .col-pers { text-align: center; color: var(--or); }
+.tableau .col-pers {
+  text-align: center;
+  color: var(--creme);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
 .tableau .col-soiree { color: var(--texte-doux); font-size: .82rem; }
 .tableau .col-date { color: var(--texte-doux); font-size: .8rem; white-space: nowrap; }
 
-/* ─────────── Pointage à l'entrée ───────────
-   Cible large et case bien visible : ça se coche d'un pouce, dans le
-   noir, sur un téléphone, pendant que la file avance. */
-
-.tableau .col-arrive { width: 4.5rem; text-align: center; }
-
-.pointage {
+.supprimer {
   display: inline-grid;
   place-items: center;
-  padding: .35rem;      /* agrandit la zone cliquable sans grossir la case */
-  cursor: pointer;
-}
-.pointage input {
-  position: absolute;
-  opacity: 0;
-  width: 0; height: 0;
-}
-.pointage span {
-  display: block;
-  width: 22px; height: 22px;
-  border: 1px solid rgba(248, 232, 212, .35);
-  border-radius: 4px;
-  transition: background .2s var(--ease), border-color .2s var(--ease);
-}
-.pointage span::after {
-  content: "";
-  display: block;
-  width: 5px; height: 10px;
-  margin: 3px auto 0;
-  border: solid var(--noir);
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg) scale(0);
-  transition: transform .2s var(--ease);
-}
-.pointage input:checked + span {
-  background: var(--orange);
-  border-color: var(--orange);
-}
-.pointage input:checked + span::after { transform: rotate(45deg) scale(1); }
-.pointage input:focus-visible + span {
-  outline: 2px solid var(--orange-vif);
-  outline-offset: 2px;
-}
-
-/* une ligne pointée s'efface visuellement : il reste ceux à faire entrer */
-.tableau tr.est-arrive .col-nom,
-.tableau tr.est-arrive .col-contact,
-.tableau tr.est-arrive .col-soiree,
-.tableau tr.est-arrive .col-date { opacity: .45; }
-.tableau tr.est-arrive .col-pers { color: var(--texte-doux); }
-
-/* interrupteur « reste à faire entrer » */
-.bascule {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .55rem .95rem;
-  border: 1px solid var(--ligne);
-  border-radius: 100px;
-  font-size: .74rem;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--texte-doux);
-  cursor: pointer;
-  transition: border-color .3s var(--ease), color .3s var(--ease);
-}
-.bascule:hover { border-color: rgba(248, 232, 212, .3); }
-.bascule input { accent-color: var(--orange); cursor: pointer; }
-.bascule:has(input:checked) { border-color: var(--orange); color: var(--creme); }
-
-.supprimer {
+  width: 26px; height: 26px;
   border: 0;
+  border-radius: 50%;
   background: none;
   color: rgba(248, 232, 212, .35);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1;
-  padding: .3rem .5rem;
   cursor: pointer;
-  transition: color .3s var(--ease);
+  transition: color .2s var(--ease), background .2s var(--ease);
 }
-.supprimer:hover { color: #E8897C; }
+.supprimer:hover { color: #E8897C; background: rgba(196, 87, 75, .12); }
 
 .vide {
   margin: 2rem 0 0;
@@ -439,7 +385,7 @@
 }
 
 /* ── Écran étroit ──
-   En ligne, les outils s'écrasaient : la recherche tombait à 32 px de
+   La barre d'outils s'écrasait : la recherche tombait à 32 px de
    large. On passe donc en grille, la recherche sur toute la largeur. */
 @media (max-width: 760px) {
   .bloc__tete { align-items: flex-start; }
@@ -456,17 +402,10 @@
     min-width: 0;
   }
   .filtre, .filtre select { width: 100%; }
-  .bascule { justify-content: center; text-align: center; line-height: 1.25; }
   .bloc__outils > .btn { width: 100%; }
-
-  /* la ligne de soirée respire mieux en deux temps */
-  .soiree-ligne { grid-template-columns: minmax(0, 1fr); }
-  .soiree-ligne__ratio { justify-self: start; }
 }
 
 /* ── Téléphone ── */
 @media (max-width: 460px) {
   .bloc__outils { grid-template-columns: 1fr; }
-  .total { flex-wrap: wrap; gap: .6rem .9rem; }
-  .total .jauge { flex: 1 0 100%; order: 3; }
 }

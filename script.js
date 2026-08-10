@@ -117,6 +117,39 @@
 
   let soireeChoisie = null;
 
+  /* ── Stepper « combien de personnes » ──
+     Les boutons +/− remplacent les flèches natives de <input type=number>,
+     trop petites pour un pouce sur mobile. Désactivés aux bornes (1 et 20)
+     pour qu'on ne puisse pas taper dans le vide en croyant que ça marche. */
+  const champPersonnes = form?.querySelector('#personnes');
+  const boutonsStepper = form?.querySelectorAll('.stepper__btn') || [];
+
+  const rafraichirStepper = () => {
+    if (!champPersonnes) return;
+    const val = Number(champPersonnes.value);
+    const min = Number(champPersonnes.min);
+    const max = Number(champPersonnes.max);
+    boutonsStepper.forEach(b => {
+      const pas = Number(b.dataset.pas);
+      b.disabled = pas < 0 ? val <= min : val >= max;
+    });
+  };
+
+  boutonsStepper.forEach(bouton => {
+    bouton.addEventListener('click', () => {
+      const pas = Number(bouton.dataset.pas);
+      const min = Number(champPersonnes.min);
+      const max = Number(champPersonnes.max);
+      const actuel = Number(champPersonnes.value) || min;
+      champPersonnes.value = Math.min(max, Math.max(min, actuel + pas));
+      // pour que tout listener externe (validation, etc.) voie le changement
+      champPersonnes.dispatchEvent(new Event('input', { bubbles: true }));
+      rafraichirStepper();
+    });
+  });
+
+  champPersonnes?.addEventListener('input', rafraichirStepper);
+
   const ouvrirModale = carte => {
     soireeChoisie = {
       slug: carte.dataset.slug,
@@ -129,6 +162,7 @@
     status.textContent = '';
     status.classList.remove('is-error');
     form.reset();
+    rafraichirStepper(); // form.reset() remet 2, il faut réévaluer les bornes
     modale.showModal();
     // laisse le temps au navigateur d'afficher avant de donner le focus
     requestAnimationFrame(() => form.querySelector('#nom').focus());

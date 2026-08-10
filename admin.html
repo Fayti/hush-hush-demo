@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=202608091512">
-<link rel="stylesheet" href="admin.css?v=202608091512">
+<link rel="stylesheet" href="styles.css?v=202608101459">
+<link rel="stylesheet" href="admin.css?v=202608101459">
 </head>
 <body class="admin">
 
@@ -70,28 +70,16 @@
 
     <p class="console__etat" id="console-etat" role="status" aria-live="polite" hidden></p>
 
-    <!-- chiffres du haut -->
+    <!-- Le chiffre que la soirée regarde en premier. Un seul par écran. -->
+    <section class="tete" id="tete" aria-label="Total attendu"></section>
+
+    <!-- chiffres d'appui -->
     <section class="stats" id="stats" aria-label="Chiffres clés"></section>
-
-    <!-- jauge d'ensemble : la part de monde déjà entrée -->
-    <div class="total" id="total" role="img" aria-label="Progression des entrées" hidden></div>
-
-    <!-- Sans cette phrase, personne ne devine que les chiffres d'arrivée
-         dépendent des cases cochées à la main pendant la soirée. -->
-    <p class="explication">
-      Tout le monde sur cette liste est <strong>admis d'office</strong> — l'inscription
-      suffit. Le soir, cochez la case <strong>Arrivé</strong> quand la personne se
-      présente : c'est ce qui fait bouger « déjà arrivées ». Tant que vous ne cochez
-      rien, les jauges restent à zéro, c'est normal.
-      <br>
-      La croix en bout de ligne retire quelqu'un de la liste — à réserver aux erreurs
-      et aux doublons.
-    </p>
 
     <!-- répartition par soirée -->
     <section class="bloc">
       <div class="bloc__tete">
-        <h2>Par soirée</h2>
+        <h2>Répartition par soirée</h2>
       </div>
       <div class="parsoiree" id="parsoiree"></div>
     </section>
@@ -106,10 +94,6 @@
             <select id="filtre-soiree"><option value="">Toutes les soirées</option></select>
           </label>
           <input class="recherche" type="search" id="recherche" placeholder="Chercher un nom…" aria-label="Chercher un nom">
-          <label class="bascule">
-            <input type="checkbox" id="filtre-restants">
-            <span>Pas encore arrivés</span>
-          </label>
           <button class="btn btn--ghost btn--sm" type="button" id="export">Export CSV</button>
         </div>
       </div>
@@ -118,12 +102,11 @@
         <table class="tableau" id="tableau">
           <thead>
             <tr>
-              <th scope="col" class="col-arrive">Arrivé</th>
               <th scope="col">Nom</th>
               <th scope="col">Contact</th>
               <th scope="col">Pers.</th>
               <th scope="col">Soirée</th>
-              <th scope="col">Reçue le</th>
+              <th scope="col">Inscrit le</th>
               <th scope="col"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>
@@ -137,8 +120,8 @@
   </main>
 </div>
 
-<script src="config.js?v=202608091512"></script>
-<script src="admin.js?v=202608091512"></script>
+<script src="config.js?v=202608101459"></script>
+<script src="admin.js?v=202608101459"></script>
 
 <!-- ────────── GARDE-FOU ──────────
      Ce script est écrit DANS la page : si le HTML s'affiche, il tourne,

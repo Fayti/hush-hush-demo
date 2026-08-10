@@ -912,6 +912,65 @@ select {
 }
 select option { background: var(--brun-fonce); color: var(--creme); }
 
+/* ── Stepper « combien de personnes » ──
+   Remplace les flèches natives du <input type="number"> — minuscules,
+   peu visibles sur fond sombre, presque inutilisables au pouce. Deux
+   boutons ronds encadrent le nombre, dessinés en SVG pour rester nets
+   à toute taille d'écran. */
+
+.stepper {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .6rem;
+}
+
+.stepper__valeur {
+  width: 100%;
+  padding: .95rem .5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  font-size: 1.15rem;
+  /* cache les flèches natives, gardées uniquement pour le clavier/scroll */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.stepper__valeur::-webkit-inner-spin-button,
+.stepper__valeur::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper__btn {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--ligne);
+  border-radius: 50%;
+  background: rgba(248, 232, 212, .05);
+  color: var(--creme);
+  cursor: pointer;
+  transition: background .2s var(--ease), border-color .2s var(--ease),
+              color .2s var(--ease), transform .15s var(--ease);
+}
+.stepper__btn:hover {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: var(--noir);
+}
+.stepper__btn:active { transform: scale(.92); }
+.stepper__btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+  background: rgba(248, 232, 212, .05);
+  border-color: var(--ligne);
+  color: var(--creme);
+  transform: none;
+}
+
 .form__status {
   grid-column: 1 / -1;
   margin: 0;
